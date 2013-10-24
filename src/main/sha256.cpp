@@ -245,7 +245,7 @@ static const Field sha2_padding[16] =
 /*
  * SHA-256 final digest
  */
-void sha2_finish( sha2_context *ctx, Field output[8] )
+void sha2_finish( sha2_context *ctx, Field (&output)[8] )
 {
     uint32_t last, padn;
     Field high, low;
@@ -273,7 +273,7 @@ void sha2_finish( sha2_context *ctx, Field output[8] )
 /*
  * output = SHA-256( input buffer )
  */
-void sha2( const Field* input, size_t ilen, Field output[8] )
+void sha2( const Field* input, size_t ilen, Field (&output)[8] )
 {
     sha2_context ctx;
 

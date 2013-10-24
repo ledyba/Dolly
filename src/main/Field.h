@@ -51,6 +51,7 @@ public:
 	explicit Field(uint32_t const& t):spr_(t), color_(){};
 	Field():spr_(0), color_(){};
 	~Field() = default;
+	Color color() const { return this->color_; }
 public:
 	Field& operator = ( Field const& t ) {
 		spr_ = t.spr_;

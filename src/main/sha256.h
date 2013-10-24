@@ -76,10 +76,16 @@ void sha2_update( sha2_context *ctx, const Field* input, size_t ilen );
  * \param ctx      SHA-256 context
  * \param output   SHA-224/256 checksum result
  */
-void sha2_finish( sha2_context *ctx, Field output[8] );
+void sha2_finish( sha2_context *ctx, Field (&output)[8] );
 
 /* Internal use */
 void sha2_process( sha2_context *ctx, const Field data[16] );
 
-void sha2( const Field* input, size_t ilen, Field output[8] );
+void sha2( const Field* input, size_t ilen, Field (&output)[8] );
+
+template <size_t N>
+void sha2( const Field (&input)[N], Field (&output)[8] )
+{
+	sha2(input, N, output);
+}
 }
