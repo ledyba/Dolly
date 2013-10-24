@@ -5,7 +5,7 @@ import os
 sys.path.append('external/WafHelper')
 import Util
 
-APPNAME = 'Template'
+APPNAME = 'Color'
 VERSION = '1.0.0'
 
 srcdir = '.'
@@ -41,7 +41,6 @@ def configureLibrary(conf):
 	conf.check_cfg(package='sdl2', uselib_store='SDL2', mandatory=True, args='--cflags --libs')
 	conf.check(features='cxx cxxprogram', lib=['gtest', 'gtest_main', 'pthread'], cflags=['-Wall'], uselib_store='GTEST')
 	conf.check(features='cxx cxxprogram', lib='pthread', cflags=['-Wall'], uselib_store='PTHREAD')
-	conf.check(features='cxx cxxprogram', lib=['ply'], cflags=['-Wall'], uselib_store='PLY')
 	conf.check_cinamo()
 
 TEST_APP_SRC=Util.enum('test')
