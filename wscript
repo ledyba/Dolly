@@ -19,7 +19,7 @@ def options(opt):
 	opt.add_option('--debug', action='store_true', default=False, help='debug build')
 	opt.load('compiler_c compiler_cxx')
 	opt.load('boost')
-	opt.load('cinamo', tooldir='.helper'')
+	opt.load('cinamo', tooldir='.helper')
 
 def configure(conf):
 	conf.setenv('release')
