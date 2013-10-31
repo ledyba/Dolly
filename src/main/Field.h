@@ -7,24 +7,25 @@
 #pragma once
 #include <unordered_map>
 #include <cinamo/ClassUtil.h>
+#include <cmath>
 
 namespace clr {
 
 class Color final {
 private:
 	DEFINE_MEMBER(public, private, bool, transparent);
-	DEFINE_MEMBER(public, private, unsigned char, red);
-	DEFINE_MEMBER(public, private, unsigned char, green);
-	DEFINE_MEMBER(public, private, unsigned char, blue);
+	DEFINE_MEMBER(public, private, float, red);
+	DEFINE_MEMBER(public, private, float, green);
+	DEFINE_MEMBER(public, private, float, blue);
 public:
-	Color( unsigned char r,unsigned char g,unsigned char b )
+	Color( float r, float g,float b )
 	:transparent_(false)
 	,red_(r)
 	,green_(g)
 	,blue_(b) {
 	}
 	Color( )
-	:transparent_(true), red_(0), green_(0), blue_(0){}
+	:transparent_(true), red_(NAN), green_(NAN), blue_(NAN){}
 	~Color() = default;
 public:
 	Color avg( Color const& c ) const {
@@ -34,9 +35,12 @@ public:
 			return *this;
 		}else{
 			return Color(
-		static_cast<unsigned char>( (static_cast<unsigned int>(red())+static_cast<unsigned int>(c.red()) )/2 ),
-		static_cast<unsigned char>( (static_cast<unsigned int>(green())+static_cast<unsigned int>(c.green()) )/2 ),
-		static_cast<unsigned char>( (static_cast<unsigned int>(blue())+static_cast<unsigned int>(c.blue()) )/2 )
+					//		static_cast<unsigned char>( (static_cast<unsigned int>(red())+static_cast<unsigned int>(c.red()) )/2 ),
+					//		static_cast<unsigned char>( (static_cast<unsigned int>(green())+static_cast<unsigned int>(c.green()) )/2 ),
+					//		static_cast<unsigned char>( (static_cast<unsigned int>(blue())+static_cast<unsigned int>(c.blue()) )/2 )
+					( red  () + c.red  () )/2.0f,
+					( green() + c.green() )/2.0f,
+					( blue () + c.blue () )/2.0f
 			);
 		}
 	}

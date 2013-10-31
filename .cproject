@@ -117,18 +117,6 @@
 		<configuration configurationName="Windows"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
-		<buildTargets>
-			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-				<buildCommand>sh</buildCommand>
-				<buildArguments>bld.sh</buildArguments>
-				<buildTarget>all</buildTarget>
-				<stopOnError>true</stopOnError>
-				<useDefaultCommand>true</useDefaultCommand>
-				<runAllBuilders>true</runAllBuilders>
-			</target>
-		</buildTargets>
-	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.1903430013;cdt.managedbuild.toolchain.gnu.mingw.base.1903430013.67646611;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1167108264;cdt.managedbuild.tool.gnu.c.compiler.input.1159821867">
@@ -149,5 +137,25 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.1903430013;cdt.managedbuild.toolchain.gnu.mingw.base.1903430013.67646611;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.900101091;cdt.managedbuild.tool.gnu.cpp.compiler.input.40487361">
 			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>sh</buildCommand>
+				<buildArguments>bld.sh</buildArguments>
+				<buildTarget>all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="distclean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>sh</buildCommand>
+				<buildArguments>bld.sh</buildArguments>
+				<buildTarget>distclean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
 	</storageModule>
 </cproject>

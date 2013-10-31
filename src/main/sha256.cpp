@@ -196,7 +196,7 @@ void sha2_update( sha2_context *ctx, const Field* input, size_t ilen )
 
     if( left && ilen >= fill )
     {
-    	for(int i=0;i<fill;++i){
+    	for(size_t i=0;i<fill;++i){
     		ctx->buffer[i+left] = input[i];
     	}
         sha2_process( ctx, ctx->buffer );
@@ -262,7 +262,7 @@ void sha2_finish( sha2_context *ctx, Field (&output)[8] )
     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
     sha2_update( ctx, sha2_padding, padn/4 );
-    sha2_update( ctx, msglen, 2 );
+    sha2_update( ctx, msglen, 8/2 );
 
     for( int i=0; i<8; ++i ) {
     	output[i] = ctx->state[i];

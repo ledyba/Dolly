@@ -6,40 +6,26 @@
  */
 
 #include "../main/sha256.h"
+#include <libavutil/buffer.h>
 int main(int argc, char** argv)
 {
 	using namespace clr;
 	Field out[8];
-	Field in[] = {
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x61616161, Color(0,0,255)),
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x61616161, Color(0,0,255)),
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x61616161, Color(0,0,255)),
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x61616161, Color(0,0,255)),
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x61616161, Color(0,0,255)),
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x61616161, Color(0,0,255)),
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x61616161, Color(0,0,255)),
-			Field(0x61616161, Color(255,0,0)),
-			Field(0x61616161, Color(0,255,0)),
-			Field(0x6161610a, Color(0,0,255))
+	Field in[100*3] = {
 	};
+	int idx=0;
+	for( auto& i : in ) {
+		i = Field(0x00000000,
+				idx %3 == 0 ? Color(1,0,0) :
+				idx %3 == 1 ? Color(0,1,0) : Color(0,0,1) );
+		++idx;
+	}
+	std::printf("length: %lu\n", sizeof(in)/sizeof(Field));
 	sha2(in, out);
 	for( int i=0;i<8;++i ){
 		Color c = out[i].color();
-		std::printf("%08x -> %02d,%02d,%02d", out[i].value(), c.red(), c.green(), c.blue());
+		std::printf("%08x -> %.2f,%.2f,%.2f",
+				out[i].value(), c.red(), c.green(), c.blue());
 		std::puts("");
 	}
 	return 0;
