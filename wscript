@@ -5,7 +5,7 @@ import os
 sys.path.append('.helper')
 import Util
 
-APPNAME = 'Template'
+APPNAME = 'Color'
 VERSION = '1.0.0'
 
 srcdir = '.'
@@ -19,7 +19,7 @@ def options(opt):
 	opt.add_option('--debug', action='store_true', default=False, help='debug build')
 	opt.load('compiler_c compiler_cxx')
 	opt.load('boost')
-	opt.load('cinamo', tooldir='.helper')
+	opt.load('cinamo', tooldir='.helper'')
 
 def configure(conf):
 	conf.setenv('release')
@@ -37,7 +37,9 @@ def configure(conf):
 
 def configureLibrary(conf):
 	conf.load('compiler_c compiler_cxx')
+	conf.check_cfg(package='cairo', uselib_store='CAIRO', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='icu-uc icu-i18n', uselib_store='ICU', mandatory=True, args='--cflags --libs')
+	conf.check_cfg(package='libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale', uselib_store='FF', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='sdl2', uselib_store='SDL2', mandatory=True, args='--cflags --libs')
 	conf.check(features='cxx cxxprogram', lib=['gtest', 'gtest_main', 'pthread'], cflags=['-Wall'], uselib_store='GTEST')
 	conf.check(features='cxx cxxprogram', lib='pthread', cflags=['-Wall'], uselib_store='PTHREAD')
@@ -55,18 +57,18 @@ def build(bld):
 		features = 'cxx cxxstlib',
 		source = MAINLIB_SRC,
 		target = 'main',
-		use=['CINAMO','PPROF','PTHREAD', 'SDL2', 'ICU'])
+		use=['CINAMO', 'CAIRO','PPROF','PTHREAD', 'SDL2', 'ICU', 'FF'])
 	bld(
 		features = 'cxx cxxprogram',
 		source = MAIN_APP_SRC,
 		target = 'mainApp',
-		use=['CINAMO','PPROF','PTHREAD', 'SDL2', 'ICU', 'main'])
+		use=['CINAMO', 'CAIRO','PPROF','PTHREAD', 'SDL2', 'ICU', 'FF', 'main'])
 	bld(
 		features = 'cxx cxxprogram',
 		source = TEST_APP_SRC,
 		target = 'testApp',
 		env = bld.all_envs["coverage"] if ("coverage" in bld.all_envs) else bld.env,
-		use=['CINAMO','PPROF','PTHREAD', 'SDL2', 'ICU', 'GTEST', 'superpx'])
+		use=['CINAMO', 'CAIRO','PPROF','PTHREAD', 'SDL2', 'ICU', 'GTEST', 'FF', 'main'])
 
 def shutdown(ctx):
 	pass
