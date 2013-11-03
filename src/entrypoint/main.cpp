@@ -6,9 +6,16 @@
  */
 
 #include "../main/sha256.h"
-#include <libavutil/buffer.h>
+#include "../main/waltz/Camera.h"
+
 int main(int argc, char** argv)
 {
+	{
+		using namespace waltz;
+		Camera cam(640, 480, "test.mp4", "video/mp4");
+		cam.start();
+		cam.record();
+	}
 	using namespace clr;
 	Field out[8];
 	Field in[100*3] = {
@@ -28,5 +35,6 @@ int main(int argc, char** argv)
 				out[i].value(), c.red(), c.green(), c.blue());
 		std::puts("");
 	}
+
 	return 0;
 }

@@ -1565,7 +1565,7 @@
 				</language>
 			</provider>
 			<provider copy-of="extension" id="org.eclipse.cdt.managedbuilder.core.GCCBuildCommandParser"/>
-			<provider class="org.eclipse.cdt.managedbuilder.language.settings.providers.GCCBuiltinSpecsDetector" console="false" env-hash="-1392268499" id="org.eclipse.cdt.managedbuilder.core.GCCBuiltinSpecsDetector" keep-relative-paths="false" name="CDT GCC Builtin Compiler Settings" parameter="/usr/bin/${COMMAND} -E -P -v -dD ${INPUTS} -std=gnu++11" store-entries-with-project="true">
+			<provider class="org.eclipse.cdt.managedbuilder.language.settings.providers.GCCBuiltinSpecsDetector" console="false" env-hash="-1392268499" id="org.eclipse.cdt.managedbuilder.core.GCCBuiltinSpecsDetector" keep-relative-paths="false" name="CDT GCC Built-in Compiler Settings" parameter="${COMMAND} -E -P -v -dD &quot;${INPUTS}&quot; -std=gnu++11" store-entries-with-project="true">
 				<language-scope id="org.eclipse.cdt.core.gcc"/>
 				<language-scope id="org.eclipse.cdt.core.g++"/>
 				<language id="org.eclipse.cdt.core.gcc">
@@ -1581,7 +1581,7 @@
 					<entry kind="includePath" name="/usr/local/include">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="includePath" name="/usr/lib/gcc/x86_64-redhat-linux/4.8.1/include">
+					<entry kind="includePath" name="/usr/lib/gcc/x86_64-redhat-linux/4.8.2/include">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
 					<entry kind="includePath" name="/usr/include">
@@ -1860,7 +1860,7 @@
 					<entry kind="macro" name="__GNUC_MINOR__" value="8">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="macro" name="__GNUC_PATCHLEVEL__" value="1">
+					<entry kind="macro" name="__GNUC_PATCHLEVEL__" value="2">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
 					<entry kind="macro" name="__GNUC_RH_RELEASE__" value="1">
@@ -2241,7 +2241,7 @@
 					<entry kind="macro" name="__USER_LABEL_PREFIX__" value="">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="macro" name="__VERSION__" value="&quot;4.8.1 20130603 (Red Hat 4.8.1-1)&quot;">
+					<entry kind="macro" name="__VERSION__" value="&quot;4.8.2 20131017 (Red Hat 4.8.2-1)&quot;">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
 					<entry kind="macro" name="__WCHAR_MAX__" value="2147483647">
@@ -2318,16 +2318,16 @@
 					<entry kind="includePath" name="/usr/local/include">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="includePath" name="/usr/include/c++/4.8.1">
+					<entry kind="includePath" name="/usr/include/c++/4.8.2">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="includePath" name="/usr/include/c++/4.8.1/x86_64-redhat-linux">
+					<entry kind="includePath" name="/usr/include/c++/4.8.2/x86_64-redhat-linux">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="includePath" name="/usr/include/c++/4.8.1/backward">
+					<entry kind="includePath" name="/usr/include/c++/4.8.2/backward">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="includePath" name="/usr/lib/gcc/x86_64-redhat-linux/4.8.1/include">
+					<entry kind="includePath" name="/usr/lib/gcc/x86_64-redhat-linux/4.8.2/include">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
 					<entry kind="includePath" name="/usr/include">
@@ -2612,7 +2612,7 @@
 					<entry kind="macro" name="__GNUC_MINOR__" value="8">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="macro" name="__GNUC_PATCHLEVEL__" value="1">
+					<entry kind="macro" name="__GNUC_PATCHLEVEL__" value="2">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
 					<entry kind="macro" name="__GNUC_RH_RELEASE__" value="1">
@@ -3008,7 +3008,7 @@
 					<entry kind="macro" name="__USER_LABEL_PREFIX__" value="">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
-					<entry kind="macro" name="__VERSION__" value="&quot;4.8.1 20130603 (Red Hat 4.8.1-1)&quot;">
+					<entry kind="macro" name="__VERSION__" value="&quot;4.8.2 20131017 (Red Hat 4.8.2-1)&quot;">
 						<flag value="BUILTIN|READONLY"/>
 					</entry>
 					<entry kind="macro" name="__WCHAR_MAX__" value="2147483647">
@@ -3076,7 +3076,6 @@
 					</entry>
 				</language>
 			</provider>
-			<provider-reference id="org.eclipse.cdt.managedbuilder.core.MBSLanguageSettingsProvider" ref="shared-provider"/>
 		</extension>
 	</configuration>
 </project>
