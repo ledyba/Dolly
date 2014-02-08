@@ -18,11 +18,13 @@ namespace waltz {
 class Camera final {
 	const int width_;
 	const int height_;
+private: // ffmpeg
 	AVOutputFormat* fmt_;
 	AVFormatContext* ctx_;
 	AVStream* vstr_;
 	AVFrame* vframe_;
 	AVPicture pict_;
+private: //cairo
 	cairo_surface_t* cairo_surf_;
 	cairo_t* cairo_;
 private:
