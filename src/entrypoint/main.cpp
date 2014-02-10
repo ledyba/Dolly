@@ -7,6 +7,9 @@
 
 #include "../main/sha256.h"
 #include "../main/waltz/Camera.h"
+#include <SDL2/SDL.h>
+#include <iostream>
+#include <cstdio>
 
 int main(int argc, char** argv)
 {

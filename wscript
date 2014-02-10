@@ -23,13 +23,19 @@ def options(opt):
 
 def configure(conf):
 	conf.setenv('release')
-	conf.env.append_value('CXXFLAGS', ['-O3', '-Wall', '-std=gnu++11', '-D__GXX_EXPERIMENTAL_CXX0X__=1'])
+	conf.env.append_value('CXXFLAGS', ['-O3', '-Wall', '-std=gnu++11'])
+	conf.env.append_value('CXXFLAGS', ['-D__STDC_CONSTANT_MACROS', '-D__STDC_LIMIT_MACROS'])
 	configureLibrary(conf)
+	if sys.platform == 'win32':
+		conf.env.append_value('STLIB_CAIRO', ['-lgdi32'])
 	
 	conf.setenv('debug')
 	denv = conf.env;
-	conf.env.append_value('CXXFLAGS', ['-ggdb','-O0', '-Wall', '-std=gnu++11', '-D__GXX_EXPERIMENTAL_CXX0X__=1','-DDEBUG'])
+	conf.env.append_value('CXXFLAGS', ['-ggdb','-O0', '-Wall', '-std=gnu++11', '-DDEBUG'])
+	conf.env.append_value('CXXFLAGS', ['-D__STDC_CONSTANT_MACROS', '-D__STDC_LIMIT_MACROS'])
 	configureLibrary(conf)
+	if sys.platform == 'win32':
+		conf.env.append_value('STLIB_CAIRO', ['gdi32'])
 	if conf.options.coverage:
 		conf.setenv('coverage', denv)
 		conf.env.append_value('LINKFLAGS', '-fprofile-arcs')
@@ -37,7 +43,7 @@ def configure(conf):
 
 def configureLibrary(conf):
 	conf.load('compiler_c compiler_cxx')
-	conf.check_cfg(package='cairo', uselib_store='CAIRO', mandatory=True, args='--cflags --libs')
+	conf.check_cfg(package='cairo', uselib_store='CAIRO', mandatory=True, args='--static --cflags --libs')
 	conf.check_cfg(package='icu-uc icu-i18n', uselib_store='ICU', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale', uselib_store='FF', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='sdl2', uselib_store='SDL2', mandatory=True, args='--cflags --libs')
@@ -62,13 +68,13 @@ def build(bld):
 		features = 'cxx cxxprogram',
 		source = MAIN_APP_SRC,
 		target = 'mainApp',
-		use=['CINAMO', 'CAIRO','PPROF','PTHREAD', 'SDL2', 'ICU', 'FF', 'main'])
+		use=['main'])
 	bld(
 		features = 'cxx cxxprogram',
 		source = TEST_APP_SRC,
 		target = 'testApp',
 		env = bld.all_envs["coverage"] if ("coverage" in bld.all_envs) else bld.env,
-		use=['CINAMO', 'CAIRO','PPROF','PTHREAD', 'SDL2', 'ICU', 'GTEST', 'FF', 'main'])
+		use=['GTEST', 'main'])
 
 def shutdown(ctx):
 	pass
