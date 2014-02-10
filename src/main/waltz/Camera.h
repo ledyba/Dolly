@@ -24,7 +24,6 @@ private: // ffmpeg
 	AVCodecContext* codec_;
 	AVStream* vstr_;
 	AVFrame* vframe_;
-	AVPicture pict_;
 private: //cairo
 	cairo_surface_t* cairo_surf_;
 	cairo_t* cairo_;

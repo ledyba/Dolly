@@ -5,9 +5,12 @@
  * Copyright 2013, psi
  */
 #include "Camera.h"
+extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
 #include <libavutil/avstring.h>
+}
 #include <cstdlib>
 #include <cinamo/String.h>
 #include <cstring>
@@ -38,7 +41,6 @@ Camera::Camera(int width, int height, std::string const& filename, std::string c
 ,height_(height)
 ,vstr_(nullptr)
 ,vframe_(nullptr)
-,pict_()
 ,cairo_surf_(cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height))
 ,cairo_(cairo_create(cairo_surf_))
 ,frame_count_(0)
@@ -78,8 +80,8 @@ void Camera::openVideo(std::string const& fname)
 
 	/** Find the encoder to be used by its name. */
 	AVCodec *output_codec;
-	if (!(output_codec = avcodec_find_encoder(AV_CODEC_ID_AAC))) {
-		throw std::logic_error("Could not find an AAC encoder.\n");
+	if (!(output_codec = avcodec_find_encoder(AV_CODEC_ID_MPEG2VIDEO))) {
+		throw std::logic_error("Could not find an encoder.\n");
 	}
 
 	/** Create a new audio stream in the output file container. */
@@ -87,19 +89,22 @@ void Camera::openVideo(std::string const& fname)
 	if (!(stream = avformat_new_stream(fmt_, output_codec))) {
 		throw std::logic_error("Could not create new stream\n");
 	}
+	this->vstr_ = stream;
 
-	/** Save the encoder context for easiert access later. */
-	this->codec_ = stream->codec;
+	this->codec_ = avcodec_alloc_context3(output_codec);
 
 	/**
 	 * Set the basic encoder parameters.
 	 * The input file's sample rate is used to avoid a sample rate conversion.
 	 */
-	codec_->channels = 2;
-	codec_->channel_layout = av_get_default_channel_layout(2);
-	codec_->sample_rate = 441000;
-	codec_->sample_fmt = AV_SAMPLE_FMT_S16;
-	codec_->bit_rate = 128000;
+	codec_->bit_rate = 400000;
+	/* resolution must be a multiple of two */
+	codec_->width = this->width_;
+	codec_->height = this->height_;
+	/* frames per second */
+	codec_->time_base = AVRational { 1, 30 };
+	codec_->gop_size = 12; /* emit one intra frame every twelve frames at most */
+	codec_->pix_fmt = AV_PIX_FMT_YUV420P;
 
 	/**
 	 * Some container formats (like MP4) require global headers to be present
@@ -110,16 +115,19 @@ void Camera::openVideo(std::string const& fname)
 	}
 
 	/** Open the encoder for the audio stream to use it later. */
-	if ((error = avcodec_open2(codec_, output_codec, NULL)) < 0)
+	if ((error = avcodec_open2(codec_, output_codec, nullptr)) < 0)
 	{
-		std::logic_error(cinamo::format("Could not open output codec (error '%s')\n", get_error_text(error)));
+		throw std::logic_error(cinamo::format("Could not open output codec (error '%s')\n", get_error_text(error)));
 	}
 
-//	/* allocate the encoded raw picture */
-//	if ( avpicture_alloc(&this->pict_, stream->codec->pix_fmt, stream->codec->width, stream->codec->height) < 0) {
-//		fprintf(stderr, "Could not allocate picture\n");
-//		exit(1);
-//	}
+	this->vframe_ = av_frame_alloc();
+	this->vframe_ -> format = stream->codec->pix_fmt;
+	this->vframe_ -> width = width_;
+	this->vframe_ -> height = height_;
+	/* allocate the encoded raw picture */
+	if ( av_image_alloc(vframe_->data, vframe_->linesize, codec_->width, codec_->height, codec_->pix_fmt, 32) < 0) {
+		throw std::logic_error(cinamo::format("Could not allocate raw picture buffer\n"));
+	}
 }
 
 void Camera::record()
@@ -143,9 +151,11 @@ void Camera::record()
 	} else {
 		AVPacket pkt;
 		av_init_packet(&pkt);
+		pkt.data = NULL;    // packet data will be allocated by the encoder
+		pkt.size = 0;
 		/* encode the image */
 		int isEmpty;
-		if( avcodec_encode_video2(vstr_->codec, &pkt, vframe_, &isEmpty) < 0 ){
+		if( avcodec_encode_video2(this->codec_, &pkt, vframe_, &isEmpty) < 0 ){
 			av_free_packet(&pkt);
 			throw std::logic_error("Failed to encode video");
 		}
