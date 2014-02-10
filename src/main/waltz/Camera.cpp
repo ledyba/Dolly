@@ -5,7 +5,12 @@
  * Copyright 2013, psi
  */
 #include "Camera.h"
+#include <libavutil/avutil.h>
+#include <libavutil/opt.h>
+#include <libavutil/avstring.h>
 #include <cstdlib>
+#include <cinamo/String.h>
+#include <cstring>
 namespace waltz {
 class CameraInit final{
 public:
@@ -16,11 +21,21 @@ public:
 };
 static CameraInit init_;
 
+/**
+ * Convert an error code into a text message.
+ * @param error Error code to be converted
+ * @return Corresponding error text (not thread-safe)
+ */
+static char * const get_error_text(const int error)
+{
+	static char error_buffer[255];
+	av_strerror(error, error_buffer, sizeof(error_buffer));
+	return error_buffer;
+}
+
 Camera::Camera(int width, int height, std::string const& filename, std::string const& mime)
 :width_(width)
 ,height_(height)
-,fmt_(av_guess_format(nullptr, filename.c_str(), mime.size() > 0 ? mime.c_str() : nullptr))
-,ctx_(nullptr)
 ,vstr_(nullptr)
 ,vframe_(nullptr)
 ,pict_()
@@ -28,84 +43,88 @@ Camera::Camera(int width, int height, std::string const& filename, std::string c
 ,cairo_(cairo_create(cairo_surf_))
 ,frame_count_(0)
 {
-	if( !fmt_ ) {
-		throw std::logic_error("Failed to guess output format...");
-	}
-	int r = avformat_alloc_output_context2(&ctx_, fmt_, nullptr, filename.c_str());
-	if( r < 0 ) {
-		throw std::logic_error("Failed to alloc output context...");
-	}
 }
 
-void Camera::start()
+
+void Camera::start(std::string const& fname)
 {
 	this->frame_count_ = 0;
-	this->addVideoStream( fmt_->video_codec );
-	this->openVideo();
-	//avformat_write_header(ctx_, nullptr);
+	this->openVideo(fname);
+	avformat_write_header(fmt_, nullptr);
 }
 
-void Camera::addVideoStream(enum AVCodecID codec_id)
+void Camera::openVideo(std::string const& fname)
 {
-	AVStream *st = avformat_new_stream(ctx_, 0);
-	if( !st ) {
-		throw std::logic_error("Failed to alloc video stream!");
-	}
-	AVCodecContext* codec = st->codec;
-	codec->codec_id = codec_id;
-	codec->bit_rate = 400000;
-	codec->width = width_;
-	codec->height = height_;
-	codec->time_base = AVRational { 1,30 };
-	codec->codec_type = AVMEDIA_TYPE_VIDEO;
-	codec->pix_fmt = AV_PIX_FMT_YUV420P;
-	//codec->gop_size = 12; /* emit one intra frame every twelve frames at most */
-	 if (codec->codec_id == CODEC_ID_MPEG2VIDEO) {
-		/* just for testing, we also add B frames */
-		 codec->max_b_frames = 2;
-	 }
-	if (codec->codec_id == CODEC_ID_MPEG1VIDEO){
-		/* needed to avoid using macroblocks in which some coeffs overflow
-	 	 this doesnt happen with normal video, it just happens here as the
-	 	 motion of the chroma plane doesnt match the luma plane */
-		codec->mb_decision=2;
-	}
-	// some formats want stream headers to be seperate
-	if(
-		ctx_->oformat->name == std::string("mp4") ||
-		ctx_->oformat->name == std::string("mov") ||
-		ctx_->oformat->name == std::string("3gp")) {
-		codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-	}
-	this->vstr_ = st;
-}
-
-void Camera::openVideo()
-{
-	AVCodec *codec;
-
-	/* find the video encoder */
-	codec = avcodec_find_encoder(vstr_->codec->codec_id);
-	if (!codec) {
-		throw std::logic_error("could find encode");
+	int error;
+	if ((error = avio_open(&ioContex_, fname.c_str(), AVIO_FLAG_WRITE)) < 0) {
+		std::string msg = cinamo::format("Could not open output file '%s' (error '%s')\n", fname.c_str(), get_error_text(error));
+		throw std::logic_error(msg);
 	}
 
-	/* open the codec */
-	int r = avcodec_open2(vstr_->codec, codec, nullptr);
-	if (r < 0) {
-		throw std::logic_error("could not open codec\n");
+	/** Create a new format context for the output container format. */
+	if (!(this->fmt_ = avformat_alloc_context())) {
+		throw std::logic_error("Could not allocate output format context\n");
 	}
 
-	/* allocate the encoded raw picture */
-	if ( avpicture_alloc(&this->pict_, vstr_->codec->pix_fmt, vstr_->codec->width, vstr_->codec->height) < 0) {
-		fprintf(stderr, "Could not allocate picture\n");
-		exit(1);
+	/** Associate the output file (pointer) with the container format context. */
+	this->fmt_->pb = ioContex_;
+
+	/** Guess the desired container format based on the file extension. */
+	if (!(fmt_->oformat = av_guess_format(nullptr, fname.c_str(), nullptr))) {
+		throw std::logic_error("Could not find output file format\n");
 	}
+
+	std::copy(fname.begin(), fname.begin() + std::min(sizeof(fmt_->filename), fname.size()), fmt_->filename);
+
+	/** Find the encoder to be used by its name. */
+	AVCodec *output_codec;
+	if (!(output_codec = avcodec_find_encoder(AV_CODEC_ID_AAC))) {
+		throw std::logic_error("Could not find an AAC encoder.\n");
+	}
+
+	/** Create a new audio stream in the output file container. */
+	AVStream* stream;
+	if (!(stream = avformat_new_stream(fmt_, output_codec))) {
+		throw std::logic_error("Could not create new stream\n");
+	}
+
+	/** Save the encoder context for easiert access later. */
+	this->codec_ = stream->codec;
+
+	/**
+	 * Set the basic encoder parameters.
+	 * The input file's sample rate is used to avoid a sample rate conversion.
+	 */
+	codec_->channels = 2;
+	codec_->channel_layout = av_get_default_channel_layout(2);
+	codec_->sample_rate = 441000;
+	codec_->sample_fmt = AV_SAMPLE_FMT_S16;
+	codec_->bit_rate = 128000;
+
+	/**
+	 * Some container formats (like MP4) require global headers to be present
+	 * Mark the encoder so that it behaves accordingly.
+	 */
+	if (fmt_->oformat->flags & AVFMT_GLOBALHEADER) {
+		codec_->flags |= CODEC_FLAG_GLOBAL_HEADER;
+	}
+
+	/** Open the encoder for the audio stream to use it later. */
+	if ((error = avcodec_open2(codec_, output_codec, NULL)) < 0)
+	{
+		std::logic_error(cinamo::format("Could not open output codec (error '%s')\n", get_error_text(error)));
+	}
+
+//	/* allocate the encoded raw picture */
+//	if ( avpicture_alloc(&this->pict_, stream->codec->pix_fmt, stream->codec->width, stream->codec->height) < 0) {
+//		fprintf(stderr, "Could not allocate picture\n");
+//		exit(1);
+//	}
 }
 
 void Camera::record()
 {
-	if (ctx_->oformat->flags & AVFMT_RAWPICTURE) {
+	if (fmt_->oformat->flags & AVFMT_RAWPICTURE) {
 		/* raw video case. The API will change slightly in the near
 		   futur for that */
 		AVPacket pkt;
@@ -116,7 +135,7 @@ void Camera::record()
 		pkt.data= (uint8_t *) vframe_;
 		pkt.size= sizeof(AVPicture);
 
-		if ( av_write_frame(ctx_, &pkt) < 0 ){
+		if ( av_write_frame(fmt_, &pkt) < 0 ){
 			av_free_packet(&pkt);
 			throw std::logic_error("Failed to write frame");
 		}
@@ -138,7 +157,7 @@ void Camera::record()
 			pkt.stream_index= vstr_->index;
 
 			/* write the compressed frame in the media file */
-			if ( av_write_frame(ctx_, &pkt) < 0 ){
+			if ( av_write_frame(fmt_, &pkt) < 0 ){
 				av_free_packet(&pkt);
 				throw std::logic_error("Failed to write frame");
 			}
@@ -151,7 +170,7 @@ void Camera::record()
 Camera::~Camera()
 {
 	//av_write_trailer(ctx_);
-	avformat_free_context(ctx_);
+	avformat_free_context(fmt_);
 }
 
 

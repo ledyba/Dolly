@@ -19,8 +19,9 @@ class Camera final {
 	const int width_;
 	const int height_;
 private: // ffmpeg
-	AVOutputFormat* fmt_;
-	AVFormatContext* ctx_;
+	AVIOContext* ioContex_;
+	AVFormatContext* fmt_;
+	AVCodecContext* codec_;
 	AVStream* vstr_;
 	AVFrame* vframe_;
 	AVPicture pict_;
@@ -32,10 +33,9 @@ private:
 public:
 	Camera(int width, int height, std::string const& filename, std::string const& mime = "");
 	~Camera();
-	void start();
+	void start(std::string const& fname);
 private:
-	void addVideoStream(enum AVCodecID codec_id);
-	void openVideo();
+	void openVideo(std::string const& fname);
 public:
 	void record();
 	inline cairo_t* cairo() { return this->cairo_; };

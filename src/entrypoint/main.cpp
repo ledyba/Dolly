@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	{
 		using namespace waltz;
 		Camera cam(640, 480, "test.mp4", "video/mp4");
-		cam.start();
+		cam.start("test.mp4");
 		cam.record();
 	}
 	using namespace clr;
