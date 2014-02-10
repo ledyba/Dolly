@@ -140,12 +140,12 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 		<buildTargets>
-			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+			<target name="build_debug" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>sh</buildCommand>
-				<buildArguments>bld.sh</buildArguments>
-				<buildTarget>all</buildTarget>
+				<buildArguments>bld.sh -j4</buildArguments>
+				<buildTarget>build_debug</buildTarget>
 				<stopOnError>true</stopOnError>
-				<useDefaultCommand>true</useDefaultCommand>
+				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
 			</target>
 			<target name="distclean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
