@@ -36,7 +36,7 @@ static char * const get_error_text(const int error)
 	return error_buffer;
 }
 
-Camera::Camera(int width, int height, std::string const& filename, std::string const& mime)
+Camera::Camera(int width, int height)
 :width_(width)
 ,height_(height)
 ,vstr_(nullptr)
@@ -48,18 +48,18 @@ Camera::Camera(int width, int height, std::string const& filename, std::string c
 }
 
 
-void Camera::start(std::string const& fname)
+void Camera::start(std::string const& fname, enum AVCodecID videoCodec)
 {
 	this->frame_count_ = 0;
-	this->openVideo(fname);
+	this->openVideo(fname, videoCodec);
 	avformat_write_header(fmt_, nullptr);
 	av_dump_format(fmt_, 0, fname.c_str(), 1);
 }
 
-void Camera::openVideo(std::string const& fname)
+void Camera::openVideo(std::string const& fname, enum AVCodecID videoCodec)
 {
 	int error;
-	avformat_alloc_output_context2(&this->fmt_, NULL, NULL, fname.c_str());
+	avformat_alloc_output_context2(&this->fmt_, nullptr, nullptr, fname.c_str());
 	if (!this->fmt_) {
 		throw std::logic_error("Could not allocate output format context\n");
 	}
@@ -68,7 +68,7 @@ void Camera::openVideo(std::string const& fname)
 
 	/** Find the encoder to be used by its name. */
 	AVCodec *output_codec;
-	if (!(output_codec = avcodec_find_encoder(fmt_->oformat->video_codec))) {
+	if (!(output_codec = avcodec_find_encoder(videoCodec == AV_CODEC_ID_NONE ? fmt_->oformat->video_codec : videoCodec))) {
 		throw std::logic_error("Could not find an encoder.\n");
 	}
 

@@ -29,11 +29,11 @@ private: //cairo
 private:
 	int frame_count_;
 public:
-	Camera(int width, int height, std::string const& filename, std::string const& mime = "");
+	Camera(int width, int height);
 	~Camera();
-	void start(std::string const& fname);
+	void start(std::string const& fname, enum AVCodecID videoCodec = AV_CODEC_ID_NONE);
 private:
-	void openVideo(std::string const& fname);
+	void openVideo(std::string const& fname, enum AVCodecID videoCodec);
 	void finishVideo();
 public:
 	void record();
