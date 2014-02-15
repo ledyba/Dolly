@@ -8,15 +8,12 @@
 
 #include <exception>
 #include <stdexcept>
-extern "C" {
-#include <libavformat/avformat.h>
-}
 
 namespace dolly
 {
 
 template <typename T>
-void ffCloser(T* ptr);
+void ptrCloser(T* ptr);
 
 template<typename T>
 class Ptr;
@@ -28,7 +25,7 @@ private:
 	int cnt_;
 	~PtrSpirit(){
 		if( ptr_ ) {
-			ffCloser<T>(ptr_);
+			ptrCloser<T>(ptr_);
 		}
 	}
 	PtrSpirit(PtrSpirit<T> const&) = delete;
@@ -37,6 +34,9 @@ private:
 	PtrSpirit& operator=(PtrSpirit<T>&&) = delete;
 public:
 	PtrSpirit(T* ptr):ptr_(ptr),cnt_(1){
+		if( !ptr ) {
+			throw std::logic_error("Pointer must not zero.");
+		}
 	}
 	T* get(){
 		return ptr_;
@@ -124,9 +124,5 @@ public:
 		return this->ptr_ ? this->ptr_->get() : nullptr;
 	}
 };
-
-typedef Ptr<AVCodecContext> FFCodecContext;
-typedef Ptr<AVFrame> FFFrame;
-typedef Ptr<AVFormatContext> FFFormatContext;
 
 }

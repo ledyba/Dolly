@@ -4,26 +4,26 @@
  *
  * Copyright 2014, PSI
  */
-#include "Ptr.h"
+#include "FFPtr.h"
 
 namespace dolly
 {
 
 template <>
-void ffCloser(AVFrame* ptr)
+void ptrCloser(AVFrame* ptr)
 {
 	av_free(ptr->data[0]);
 	av_frame_free(&ptr);
 }
 
 template <>
-void ffCloser(AVCodecContext* ptr)
+void ptrCloser(AVCodecContext* ptr)
 {
 	avcodec_close(ptr);
 	av_free(ptr);
 }
 template <>
-void ffCloser(AVFormatContext* ptr)
+void ptrCloser(AVFormatContext* ptr)
 {
 	avformat_free_context(ptr);
 }
