@@ -8,10 +8,8 @@
 
 #include <string>
 #include <functional>
-extern "C" {
-#include <libavformat/avformat.h>
-}
 #include <cairo/cairo.h>
+#include "FFPtr.h"
 
 namespace dolly {
 
@@ -19,10 +17,10 @@ class Camera final {
 	const int width_;
 	const int height_;
 private: // ffmpeg
-	AVFormatContext* fmt_;
-	AVCodecContext* codec_;
+	FFFormatContext fmt_;
+	FFCodecContext codec_;
 	AVStream* vstr_;
-	AVFrame* vframe_;
+	FFFrame vframe_;
 private: //cairo
 	cairo_surface_t* cairo_surf_;
 	cairo_t* cairo_;

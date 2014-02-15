@@ -54,14 +54,16 @@ void Camera::start(std::string const& fname, enum AVCodecID videoCodec)
 {
 	this->frame_count_ = 0;
 	this->openVideo(fname, videoCodec);
-	avformat_write_header(fmt_, nullptr);
-	av_dump_format(fmt_, 0, fname.c_str(), 1);
+	avformat_write_header(fmt_.get(), nullptr);
+	av_dump_format(fmt_.get(), 0, fname.c_str(), 1);
 }
 
 void Camera::openVideo(std::string const& fname, enum AVCodecID videoCodec)
 {
 	int error;
-	avformat_alloc_output_context2(&this->fmt_, nullptr, nullptr, fname.c_str());
+	AVFormatContext* fmtCtx_;
+	avformat_alloc_output_context2(&fmtCtx_, nullptr, nullptr, fname.c_str());
+	fmt_.set(fmtCtx_);
 	if (!this->fmt_) {
 		throw std::logic_error("Could not allocate output format context\n");
 	}
@@ -76,13 +78,13 @@ void Camera::openVideo(std::string const& fname, enum AVCodecID videoCodec)
 
 	/** Create a new audio stream in the output file container. */
 	AVStream* stream;
-	if (!(stream = avformat_new_stream(fmt_, output_codec))) {
+	if (!(stream = avformat_new_stream(fmt_.get(), output_codec))) {
 		throw std::logic_error("Could not create new stream\n");
 	}
 	this->vstr_ = stream;
 	stream->id = fmt_->nb_streams-1;
 
-	this->codec_ = stream->codec;
+	this->codec_.set(stream->codec);
 
 	/**
 	 * Set the basic encoder parameters.
@@ -118,7 +120,7 @@ void Camera::openVideo(std::string const& fname, enum AVCodecID videoCodec)
 	}
 
 	/** Open the encoder for the audio stream to use it later. */
-	if ((error = avcodec_open2(codec_, output_codec, nullptr)) < 0)
+	if ((error = avcodec_open2(codec_.get(), output_codec, nullptr)) < 0)
 	{
 		throw std::logic_error(cinamo::format("Could not open output codec (error '%s')\n", get_error_text(error)));
 	}
@@ -129,7 +131,7 @@ void Camera::openVideo(std::string const& fname, enum AVCodecID videoCodec)
 		}
 	}
 
-	this->vframe_ = av_frame_alloc();
+	this->vframe_.set(av_frame_alloc());
 	this->vframe_ -> format = stream->codec->pix_fmt;
 	this->vframe_ -> width = width_;
 	this->vframe_ -> height = height_;
@@ -168,10 +170,10 @@ void Camera::record()
 
 		pkt.flags |= AV_PKT_FLAG_KEY;
 		pkt.stream_index= vstr_->index;
-		pkt.data= (uint8_t *) vframe_;
+		pkt.data= (uint8_t *) vframe_.get();
 		pkt.size= sizeof(AVPicture);
 
-		if ( av_write_frame(fmt_, &pkt) < 0 ){
+		if ( av_write_frame(fmt_.get(), &pkt) < 0 ){
 			av_free_packet(&pkt);
 			throw std::logic_error("Failed to write frame");
 		}
@@ -184,8 +186,8 @@ void Camera::record()
 		/* encode the image */
 		int gotOutput;
 		vframe_->pts = frame_count_;
-		fill_yuv_image(vframe_, frame_count_, width_, height_);
-		if( avcodec_encode_video2(this->codec_, &pkt, vframe_, &gotOutput) < 0 ){
+		fill_yuv_image(vframe_.get(), frame_count_, width_, height_);
+		if( avcodec_encode_video2(this->codec_.get(), &pkt, vframe_.get(), &gotOutput) < 0 ){
 			av_free_packet(&pkt);
 			throw std::logic_error("Failed to encode video");
 		}
@@ -195,7 +197,7 @@ void Camera::record()
 			pkt.duration = av_rescale_q(pkt.duration, vstr_->codec->time_base, vstr_->time_base);
 			pkt.stream_index = vstr_->index;
 
-			av_interleaved_write_frame(fmt_, &pkt);
+			av_interleaved_write_frame(fmt_.get(), &pkt);
 			av_free_packet(&pkt);
 		}
 	}
@@ -208,7 +210,7 @@ void Camera::finishVideo(){
 		av_init_packet(&pkt);
 		pkt.data = NULL;    // packet data will be allocated by the encoder
 		pkt.size = 0;
-		if( avcodec_encode_video2(this->codec_, &pkt, nullptr, &gotOut) < 0 ){
+		if( avcodec_encode_video2(this->codec_.get(), &pkt, nullptr, &gotOut) < 0 ){
 			av_free_packet(&pkt);
 			throw std::logic_error("Failed to encode video");
 		}
@@ -218,7 +220,7 @@ void Camera::finishVideo(){
 			pkt.duration = av_rescale_q(pkt.duration, vstr_->codec->time_base, vstr_->time_base);
 			pkt.stream_index = vstr_->index;
 
-			av_interleaved_write_frame(fmt_, &pkt);
+			av_interleaved_write_frame(fmt_.get(), &pkt);
 			av_free_packet(&pkt);
 		}
 	}
@@ -227,11 +229,7 @@ void Camera::finishVideo(){
 Camera::~Camera()
 {
 	finishVideo();
-	av_write_trailer(fmt_);
-	avcodec_close(codec_);
-	av_frame_clone(vframe_);
-	av_free(vframe_->data[0]);
-	avformat_free_context(fmt_);
+	av_write_trailer(fmt_.get());
 }
 
 
