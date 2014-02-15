@@ -19,24 +19,24 @@ template <typename T>
 void ffCloser(T* ptr);
 
 template<typename T>
-class FFPtr;
+class Ptr;
 
 template<typename T>
-class FFSpirit {
+class PtrSpirit {
 private:
 	T* const ptr_;
 	int cnt_;
-	~FFSpirit(){
+	~PtrSpirit(){
 		if( ptr_ ) {
 			ffCloser<T>(ptr_);
 		}
 	}
-	FFSpirit(FFSpirit<T> const&) = delete;
-	FFSpirit(FFSpirit<T>&&) = delete;
-	FFSpirit& operator=(FFSpirit<T> const&) = delete;
-	FFSpirit& operator=(FFSpirit<T>&&) = delete;
+	PtrSpirit(PtrSpirit<T> const&) = delete;
+	PtrSpirit(PtrSpirit<T>&&) = delete;
+	PtrSpirit& operator=(PtrSpirit<T> const&) = delete;
+	PtrSpirit& operator=(PtrSpirit<T>&&) = delete;
 public:
-	FFSpirit(T* ptr):ptr_(ptr),cnt_(1){
+	PtrSpirit(T* ptr):ptr_(ptr),cnt_(1){
 	}
 	T* get(){
 		return ptr_;
@@ -65,27 +65,37 @@ public:
 };
 
 template<typename T>
-class FFPtr {
+class Ptr {
 private:
-	FFSpirit<T>* ptr_;
+	PtrSpirit<T>* ptr_;
 public:
-	FFPtr(T* ptr):ptr_(ptr ? new FFSpirit<T>(ptr) : nullptr){
+	Ptr(T* ptr):ptr_(ptr ? new PtrSpirit<T>(ptr) : nullptr){
 	}
-	FFPtr():ptr_(nullptr){}
-	FFPtr(FFPtr<T> const& p):ptr_(p.ptr_){
+	Ptr():ptr_(nullptr){}
+	Ptr(Ptr<T> const& p):ptr_(p.ptr_){
 		if(*ptr_){
 			ptr_->incref();
 		}
 	}
-	FFPtr(FFPtr<T>&& p):ptr_(p.ptr_){}
-	FFPtr& operator=(FFPtr<T>&& ptr){
+	Ptr(Ptr<T>&& p):ptr_(p.ptr_){}
+	Ptr& operator=(Ptr<T>&& ptr){
 		if( this->ptr_ ) {
 			ptr_->decref();
 		}
 		this->ptr_ = ptr.ptr_;
 		return *this;
 	}
-	~FFPtr(){
+	Ptr& operator=(Ptr<T> const& ptr){
+		if( ptr.ptr_ ) {
+			ptr.ptr_->incref();
+		}
+		if( this->ptr_ ) {
+			ptr_->decref();
+		}
+		this->ptr_ = ptr.ptr_;
+		return *this;
+	}
+	~Ptr(){
 		if( *ptr_ ) {
 			ptr_->decref();
 		}
@@ -99,22 +109,12 @@ public:
 	operator bool() const{
 		return ptr_ && *ptr_;
 	}
-	FFPtr& operator=(FFPtr<T>& ptr){
-		if( ptr.ptr_ ) {
-			ptr.ptr_->incref();
-		}
-		if( this->ptr_ ) {
-			ptr_->decref();
-		}
-		this->ptr_ = ptr.ptr_;
-		return *this;
-	}
-	FFPtr& set(T* ptr){
+	Ptr& set(T* ptr){
 		if( this->ptr_ ) {
 			ptr_->decref();
 		}
 		if( ptr ) {
-			this->ptr_ = new FFSpirit<T>(ptr);
+			this->ptr_ = new PtrSpirit<T>(ptr);
 		}else{
 			this->ptr_ = nullptr;
 		}
@@ -125,8 +125,8 @@ public:
 	}
 };
 
-typedef FFPtr<AVCodecContext> FFCodecContext;
-typedef FFPtr<AVFrame> FFFrame;
-typedef FFPtr<AVFormatContext> FFFormatContext;
+typedef Ptr<AVCodecContext> FFCodecContext;
+typedef Ptr<AVFrame> FFFrame;
+typedef Ptr<AVFormatContext> FFFormatContext;
 
 }

@@ -9,7 +9,7 @@
 #include <string>
 #include <functional>
 #include <cairo/cairo.h>
-#include "FFPtr.h"
+#include "Ptr.h"
 
 namespace dolly {
 
