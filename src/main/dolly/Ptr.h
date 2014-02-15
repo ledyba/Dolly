@@ -21,6 +21,7 @@ class Ptr;
 template<typename T>
 class PtrSpirit {
 private:
+	friend class Ptr<T>;
 	T* const ptr_;
 	int cnt_;
 	~PtrSpirit(){
@@ -32,7 +33,6 @@ private:
 	PtrSpirit(PtrSpirit<T>&&) = delete;
 	PtrSpirit& operator=(PtrSpirit<T> const&) = delete;
 	PtrSpirit& operator=(PtrSpirit<T>&&) = delete;
-public:
 	PtrSpirit(T* ptr):ptr_(ptr),cnt_(1){
 		if( !ptr ) {
 			throw std::logic_error("Pointer must not zero.");

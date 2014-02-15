@@ -13,6 +13,14 @@
 
 namespace dolly {
 
+class RecorderBuilder final {
+
+};
+
+class Recorder final {
+
+};
+
 class Camera final {
 	const int width_;
 	const int height_;
