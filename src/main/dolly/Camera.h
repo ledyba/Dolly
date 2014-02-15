@@ -13,7 +13,7 @@ extern "C" {
 }
 #include <cairo/cairo.h>
 
-namespace waltz {
+namespace dolly {
 
 class Camera final {
 	const int width_;

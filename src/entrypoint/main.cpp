@@ -6,7 +6,7 @@
  */
 
 #include "../main/sha256.h"
-#include "../main/waltz/Camera.h"
+#include "../main/dolly/Camera.h"
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <cstdio>
@@ -14,7 +14,7 @@
 int main(int argc, char** argv)
 {
 	{
-		using namespace waltz;
+		using namespace dolly;
 		Camera cam(640, 480);
 		cam.start("test.mp4");
 		for( int i=0;i<1000;++i ) {

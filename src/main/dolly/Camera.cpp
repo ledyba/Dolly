@@ -14,7 +14,9 @@ extern "C" {
 #include <cstdlib>
 #include <cinamo/String.h>
 #include <cstring>
-namespace waltz {
+
+namespace dolly {
+
 class CameraInit final{
 public:
 	CameraInit() {
