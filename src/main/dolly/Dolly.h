@@ -66,10 +66,12 @@ private: // generic
 private: // cairo
 	Cairo cairo_;
 	CairoSurface surface_;
+private: // connect
+	FFSwsContext sws_;
 private: // ffmpeg
 	FFFormatContext fmt_;
-	FFCodecContext codec_;
 	AVStream* vstr_;
+	AVCodecContext* codec_;
 	FFFrame vframe_;
 private:
 	friend class RecorderBuilder;
@@ -83,9 +85,10 @@ private:
 		const int height,
 		Cairo&& cairo,
 		CairoSurface&& surface,
+		FFSwsContext&& sws,
 		FFFormatContext&& fmt,
-		FFCodecContext&& codec,
 		AVStream* vstr,
+		AVCodecContext* codec,
 		FFFrame&& vframe
 	);
 private:

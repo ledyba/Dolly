@@ -27,5 +27,10 @@ void ptrCloser(AVFormatContext* ptr)
 {
 	avformat_free_context(ptr);
 }
+template <>
+void ptrCloser(SwsContext* ptr)
+{
+	sws_freeContext(ptr);
+}
 
 }

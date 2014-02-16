@@ -5,14 +5,14 @@ import os
 sys.path.append('.helper')
 import Util
 
-APPNAME = 'Color'
+APPNAME = 'Dolly'
 VERSION = '1.0.0'
 
 srcdir = '.'
 blddir = 'build'
 
-MAINLIB_DIR=os.path.join(os.path.abspath(os.path.dirname(srcdir)), 'src', 'main')
-MAINLIB_SRC=Util.enum('src/main')
+DOLLYLIB_DIR=os.path.join(os.path.abspath(os.path.dirname(srcdir)), 'src', 'main')
+DOLLYLIB_SRC=Util.enum('src/main')
 
 def options(opt):
 	opt.add_option('--coverage', action='store_true', default=False, help='Enabling coverage measuring.')
@@ -53,7 +53,7 @@ def configureLibrary(conf):
 
 TEST_APP_SRC=Util.enum('test')
 
-MAIN_APP_SRC=\
+SAMPLE_APP_SRC=\
 		Util.enum('src/entrypoint')
 
 def build(bld):
@@ -61,20 +61,20 @@ def build(bld):
 		bld.set_env(bld.all_envs['debug' if (bld.options.debug) else 'release'])
 	bld(
 		features = 'cxx cxxstlib',
-		source = MAINLIB_SRC,
-		target = 'main',
+		source = DOLLYLIB_SRC,
+		target = 'dolly',
 		use=['CINAMO', 'CAIRO','PPROF','PTHREAD', 'SDL2', 'ICU', 'FF'])
 	bld(
 		features = 'cxx cxxprogram',
-		source = MAIN_APP_SRC,
+		source = SAMPLE_APP_SRC,
 		target = 'mainApp',
-		use=['main'])
+		use=['dolly'])
 	bld(
 		features = 'cxx cxxprogram',
 		source = TEST_APP_SRC,
 		target = 'testApp',
 		env = bld.all_envs["coverage"] if ("coverage" in bld.all_envs) else bld.env,
-		use=['GTEST', 'main'])
+		use=['GTEST', 'dolly'])
 
 def shutdown(ctx):
 	pass

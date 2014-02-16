@@ -37,10 +37,9 @@ static char * const get_error_text(const int error)
 Recorder RecorderBuilder::build()
 {
 	FFFormatContext fmt;
-	FFCodecContext codec;
 	AVStream* vstr;
 	FFFrame vframe;
-
+	AVCodecContext* codec;
 	{
 		int error;
 		AVFormatContext* fmtCtx;
@@ -66,7 +65,7 @@ Recorder RecorderBuilder::build()
 		vstr = stream;
 		stream->id = fmt->nb_streams-1;
 
-		codec.set(stream->codec);
+		codec = vstr->codec;
 
 		/**
 		 * Set the basic encoder parameters.
@@ -102,7 +101,7 @@ Recorder RecorderBuilder::build()
 		}
 
 		/** Open the encoder for the audio stream to use it later. */
-		if ((error = avcodec_open2(codec.get(), output_codec, nullptr)) < 0)
+		if ((error = avcodec_open2(codec, output_codec, nullptr)) < 0)
 		{
 			throw std::logic_error(cinamo::format("Could not open output codec (error '%s')\n", get_error_text(error)));
 		}
@@ -122,7 +121,11 @@ Recorder RecorderBuilder::build()
 			throw std::logic_error(cinamo::format("Could not allocate raw picture buffer\n"));
 		}
 	}
-	CairoSurface surface( cairo_image_surface_create_for_data(vframe->data[0], CAIRO_FORMAT_ARGB32, width_, height_, vframe->linesize[0]) );
+	FFSwsContext sws;
+	{
+		sws.set(sws_getContext(width_,height_, PIX_FMT_BGRA, width_, height_, codec->pix_fmt, 0, nullptr, nullptr, nullptr));
+	}
+	CairoSurface surface( cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width_, height_) );
 	Cairo cairo( cairo_create(surface.get()) );
 	return std::move(Recorder(
 		filename_,
@@ -130,9 +133,10 @@ Recorder RecorderBuilder::build()
 		height_,
 		std::move(cairo),
 		std::move(surface),
+		std::move(sws),
 		std::move(fmt),
-		std::move(codec),
 		vstr,
+		codec,
 		std::move(vframe)
 	));
 }
@@ -143,9 +147,10 @@ Recorder::Recorder(
 	const int height,
 	Cairo&& cairo,
 	CairoSurface&& surface,
+	FFSwsContext&& sws,
 	FFFormatContext&& fmt,
-	FFCodecContext&& codec,
 	AVStream* vstr,
+	AVCodecContext* codec,
 	FFFrame&& vframe
 )
 :moved_(false)
@@ -153,12 +158,13 @@ Recorder::Recorder(
 ,filename_(filename)
 ,width_(width)
 ,height_(height)
-,cairo_(std::forward<Cairo&&>(cairo))
-,surface_(std::forward<CairoSurface&&>(surface))
-,fmt_(std::forward<FFFormatContext&&>(fmt))
-,codec_(std::forward<FFCodecContext&&>(codec))
+,cairo_(std::move(cairo))
+,surface_(std::move(surface))
+,sws_(std::move(sws))
+,fmt_(std::move(fmt))
 ,vstr_(vstr)
-,vframe_(std::forward<FFFrame&&>(vframe))
+,codec_(codec)
+,vframe_(std::move(vframe))
 {
 	avformat_write_header(fmt_.get(), nullptr);
 	av_dump_format(fmt_.get(), 0, filename.c_str(), 1);
@@ -170,18 +176,24 @@ Recorder::Recorder(Recorder&& r)
 ,filename_(std::move(r.filename_))
 ,width_(r.width_)
 ,height_(r.height_)
-,cairo_(std::forward<Cairo&&>(r.cairo_))
-,surface_(std::forward<CairoSurface&&>(r.surface_))
-,fmt_(std::forward<FFFormatContext&&>(r.fmt_))
-,codec_(std::forward<FFCodecContext&&>(r.codec_))
+,cairo_(std::move(r.cairo_))
+,surface_(std::move(r.surface_))
+,sws_(std::move(r.sws_))
+,fmt_(std::move(r.fmt_))
 ,vstr_(r.vstr_)
-,vframe_(std::forward<FFFrame&&>(r.vframe_))
+,codec_(r.codec_)
+,vframe_(std::move(r.vframe_))
 {
 	r.moved_ = true;
 	r.vstr_ = nullptr;
 }
 void Recorder::shot()
 {
+	{
+		uint8_t * src[4] = { cairo_image_surface_get_data(surface_.get()), nullptr, nullptr, nullptr };
+		int stride[4] = { cairo_image_surface_get_stride(surface_.get()), 0, 0, 0 };
+		sws_scale(sws_.get(), src, stride, 0, vframe_->height, vframe_->data, vframe_->linesize);
+	}
 	if (fmt_->oformat->flags & AVFMT_RAWPICTURE) {
 		/* raw video case. The API will change slightly in the near
 		   futur for that */
@@ -206,7 +218,7 @@ void Recorder::shot()
 		/* encode the image */
 		int gotOutput;
 		vframe_->pts = frameCount_;
-		if( avcodec_encode_video2(this->codec_.get(), &pkt, vframe_.get(), &gotOutput) < 0 ){
+		if( avcodec_encode_video2(vstr_->codec, &pkt, vframe_.get(), &gotOutput) < 0 ){
 			av_free_packet(&pkt);
 			throw std::logic_error("Failed to encode video");
 		}
@@ -239,7 +251,7 @@ void Recorder::closeVideo()
 		av_init_packet(&pkt);
 		pkt.data = nullptr;    // packet data will be allocated by the encoder
 		pkt.size = 0;
-		if( avcodec_encode_video2(this->codec_.get(), &pkt, nullptr, &gotOut) < 0 ){
+		if( avcodec_encode_video2(vstr_->codec, &pkt, nullptr, &gotOut) < 0 ){
 			av_free_packet(&pkt);
 			throw std::logic_error("Failed to encode video");
 		}
