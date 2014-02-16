@@ -1,3 +1,4 @@
+AM_CXXFLAGS = -std=gnu++11
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
