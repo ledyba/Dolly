@@ -14,8 +14,11 @@ extern "C" {
 }
 
 #include "FFPtr.h"
+#include "CairoPtr.h"
 
 namespace dolly {
+
+class Recorder;
 
 class RecorderBuilder final {
 private:
@@ -48,11 +51,52 @@ public:
 #undef GET_SET_
 #undef GET_
 #undef SET_
+public:
+	Recorder build();
 };
 
 class Recorder final {
-
+private:
+	bool moved_;
+	int frameCount_;
+private: // generic
+	const std::string filename_;
+	const int width_;
+	const int height_;
+private: // cairo
+	Cairo cairo_;
+	CairoSurface surface_;
+private: // ffmpeg
+	FFFormatContext fmt_;
+	FFCodecContext codec_;
+	AVStream* vstr_;
+	FFFrame vframe_;
+private:
+	friend class RecorderBuilder;
+	Recorder() = delete;
+	Recorder(Recorder const&) = delete;
+	Recorder& operator=(Recorder&&) = delete;
+	Recorder& operator=(Recorder const&) = delete;
+	Recorder(
+		std::string const& filename,
+		const int width,
+		const int height,
+		Cairo&& cairo,
+		CairoSurface&& surface,
+		FFFormatContext&& fmt,
+		FFCodecContext&& codec,
+		AVStream* vstr,
+		FFFrame&& vframe
+	);
+private:
+	void closeVideo();
+public:
+	Recorder(Recorder&&);
+	~Recorder();
+public:
+	cairo_t* cairo() { return cairo_.get(); }
+	cairo_surface_t* surface() { return surface_.get(); }
+	void shot();
 };
 
 }
-

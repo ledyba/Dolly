@@ -77,26 +77,29 @@ public:
 			ptr_->incref();
 		}
 	}
-	Ptr(Ptr<T>&& p):ptr_(p.ptr_){}
+	Ptr(Ptr<T>&& p):ptr_(p.ptr_){
+		p.ptr_ = nullptr;
+	}
 	Ptr& operator=(Ptr<T>&& ptr){
 		if( this->ptr_ ) {
 			ptr_->decref();
 		}
 		this->ptr_ = ptr.ptr_;
+		ptr.ptr_ = nullptr;
 		return *this;
 	}
 	Ptr& operator=(Ptr<T> const& ptr){
-		if( ptr.ptr_ ) {
+		if( ptr.ptr_ && *ptr.ptr_ ) {
 			ptr.ptr_->incref();
 		}
-		if( this->ptr_ ) {
+		if( ptr_ && *ptr_ ) {
 			ptr_->decref();
 		}
 		this->ptr_ = ptr.ptr_;
 		return *this;
 	}
 	~Ptr(){
-		if( *ptr_ ) {
+		if( ptr_ && *ptr_ ) {
 			ptr_->decref();
 		}
 	}

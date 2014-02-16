@@ -1,0 +1,261 @@
+/* coding: utf-8 */
+/**
+ * Color
+ *
+ * Copyright 2014, PSI
+ */
+
+extern "C" {
+#include <libswscale/swscale.h>
+}
+#include "Dolly.h"
+#include <cinamo/String.h>
+
+
+namespace dolly {
+class CameraInit final{
+public:
+	CameraInit() {
+		av_register_all();
+	}
+	~CameraInit() = default;
+};
+static CameraInit init_;
+
+/**
+ * Convert an error code into a text message.
+ * @param error Error code to be converted
+ * @return Corresponding error text (not thread-safe)
+ */
+static char * const get_error_text(const int error)
+{
+	static char error_buffer[255];
+	av_strerror(error, error_buffer, sizeof(error_buffer));
+	return error_buffer;
+}
+
+Recorder RecorderBuilder::build()
+{
+	FFFormatContext fmt;
+	FFCodecContext codec;
+	AVStream* vstr;
+	FFFrame vframe;
+
+	{
+		int error;
+		AVFormatContext* fmtCtx;
+		avformat_alloc_output_context2(&fmtCtx, nullptr, nullptr, filename_.c_str());
+		fmt.set(fmtCtx);
+		if (!fmt) {
+			throw std::logic_error("Could not allocate output format context\n");
+		}
+
+		std::copy(filename_.begin(), filename_.begin() + std::min(sizeof(fmt->filename), filename_.size()), fmt->filename);
+
+		/** Find the encoder to be used by its name. */
+		AVCodec *output_codec;
+		if (!(output_codec = avcodec_find_encoder(videoCodec_ == AV_CODEC_ID_NONE ? fmt->oformat->video_codec : videoCodec_))) {
+			throw std::logic_error("Could not find an encoder.\n");
+		}
+
+		/** Create a new audio stream in the output file container. */
+		AVStream* stream;
+		if (!(stream = avformat_new_stream(fmt.get(), output_codec))) {
+			throw std::logic_error("Could not create new stream\n");
+		}
+		vstr = stream;
+		stream->id = fmt->nb_streams-1;
+
+		codec.set(stream->codec);
+
+		/**
+		 * Set the basic encoder parameters.
+		 * The input file's sample rate is used to avoid a sample rate conversion.
+		 */
+		codec->bit_rate = 400000;
+		/* resolution must be a multiple of two */
+		codec->width = this->width_;
+		codec->height = this->height_;
+		/* frames per second */
+		codec->time_base = AVRational { 1, 30 };
+		codec->gop_size = 12; /* emit one intra frame every twelve frames at most */
+		codec->pix_fmt = AV_PIX_FMT_YUV420P;
+		if (codec->codec_id == AV_CODEC_ID_MPEG2VIDEO)
+		{
+			/* just for testing, we also add B frames */
+			codec->max_b_frames = 2;
+		}
+		if (codec->codec_id == AV_CODEC_ID_MPEG1VIDEO)
+		{
+			/* Needed to avoid using macroblocks in which some coeffs overflow.
+			 * This does not happen with normal video, it just happens here as
+			 * the motion of the chroma plane does not match the luma plane. */
+			codec->mb_decision = 2;
+		}
+
+		/**
+		 * Some container formats (like MP4) require global headers to be present
+		 * Mark the encoder so that it behaves accordingly.
+		 */
+		if (fmt->oformat->flags & AVFMT_GLOBALHEADER) {
+			codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+		}
+
+		/** Open the encoder for the audio stream to use it later. */
+		if ((error = avcodec_open2(codec.get(), output_codec, nullptr)) < 0)
+		{
+			throw std::logic_error(cinamo::format("Could not open output codec (error '%s')\n", get_error_text(error)));
+		}
+		if (!(fmt->oformat->flags & AVFMT_NOFILE)) {
+			if ((error = avio_open(&fmt->pb, filename_.c_str(), AVIO_FLAG_WRITE)) < 0) {
+				std::string msg( cinamo::format("Could not open '%s': %s\n", filename_.c_str(), get_error_text(error)) );
+				throw std::logic_error(msg);
+			}
+		}
+
+		vframe.set(av_frame_alloc());
+		vframe -> format = stream->codec->pix_fmt;
+		vframe -> width = width_;
+		vframe -> height = height_;
+		/* allocate the encoded raw picture */
+		if ( av_image_alloc(vframe->data, vframe->linesize, codec->width, codec->height, codec->pix_fmt, 32) < 0) {
+			throw std::logic_error(cinamo::format("Could not allocate raw picture buffer\n"));
+		}
+	}
+	CairoSurface surface( cairo_image_surface_create_for_data(vframe->data[0], CAIRO_FORMAT_ARGB32, width_, height_, vframe->linesize[0]) );
+	Cairo cairo( cairo_create(surface.get()) );
+	return std::move(Recorder(
+		filename_,
+		width_,
+		height_,
+		std::move(cairo),
+		std::move(surface),
+		std::move(fmt),
+		std::move(codec),
+		vstr,
+		std::move(vframe)
+	));
+}
+
+Recorder::Recorder(
+	std::string const& filename,
+	const int width,
+	const int height,
+	Cairo&& cairo,
+	CairoSurface&& surface,
+	FFFormatContext&& fmt,
+	FFCodecContext&& codec,
+	AVStream* vstr,
+	FFFrame&& vframe
+)
+:moved_(false)
+,frameCount_(0)
+,filename_(filename)
+,width_(width)
+,height_(height)
+,cairo_(std::forward<Cairo&&>(cairo))
+,surface_(std::forward<CairoSurface&&>(surface))
+,fmt_(std::forward<FFFormatContext&&>(fmt))
+,codec_(std::forward<FFCodecContext&&>(codec))
+,vstr_(vstr)
+,vframe_(std::forward<FFFrame&&>(vframe))
+{
+	avformat_write_header(fmt_.get(), nullptr);
+	av_dump_format(fmt_.get(), 0, filename.c_str(), 1);
+}
+
+Recorder::Recorder(Recorder&& r)
+:moved_(false)
+,frameCount_(r.frameCount_)
+,filename_(std::move(r.filename_))
+,width_(r.width_)
+,height_(r.height_)
+,cairo_(std::forward<Cairo&&>(r.cairo_))
+,surface_(std::forward<CairoSurface&&>(r.surface_))
+,fmt_(std::forward<FFFormatContext&&>(r.fmt_))
+,codec_(std::forward<FFCodecContext&&>(r.codec_))
+,vstr_(r.vstr_)
+,vframe_(std::forward<FFFrame&&>(r.vframe_))
+{
+	r.moved_ = true;
+	r.vstr_ = nullptr;
+}
+void Recorder::shot()
+{
+	if (fmt_->oformat->flags & AVFMT_RAWPICTURE) {
+		/* raw video case. The API will change slightly in the near
+		   futur for that */
+		AVPacket pkt;
+		av_init_packet(&pkt);
+
+		pkt.flags |= AV_PKT_FLAG_KEY;
+		pkt.stream_index= vstr_->index;
+		pkt.data= (uint8_t *) vframe_.get();
+		pkt.size= sizeof(AVPicture);
+
+		if ( av_write_frame(fmt_.get(), &pkt) < 0 ){
+			av_free_packet(&pkt);
+			throw std::logic_error("Failed to write frame");
+		}
+		av_free_packet(&pkt);
+	} else {
+		AVPacket pkt;
+		av_init_packet(&pkt);
+		pkt.data = NULL;    // packet data will be allocated by the encoder
+		pkt.size = 0;
+		/* encode the image */
+		int gotOutput;
+		vframe_->pts = frameCount_;
+		if( avcodec_encode_video2(this->codec_.get(), &pkt, vframe_.get(), &gotOutput) < 0 ){
+			av_free_packet(&pkt);
+			throw std::logic_error("Failed to encode video");
+		}
+		if (gotOutput) {
+			pkt.pts = av_rescale_q_rnd(pkt.pts, vstr_->codec->time_base, vstr_->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			pkt.dts = av_rescale_q_rnd(pkt.dts, vstr_->codec->time_base, vstr_->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			pkt.duration = av_rescale_q(pkt.duration, vstr_->codec->time_base, vstr_->time_base);
+			pkt.stream_index = vstr_->index;
+
+			av_interleaved_write_frame(fmt_.get(), &pkt);
+			av_free_packet(&pkt);
+		}
+	}
+	++frameCount_;
+}
+
+Recorder::~Recorder()
+{
+	if(!moved_){
+		try {
+			this->closeVideo();
+		} catch (std::exception& e) {
+		}
+	}
+}
+void Recorder::closeVideo()
+{
+	for( int gotOut = 1; gotOut; ) {
+		AVPacket pkt;
+		av_init_packet(&pkt);
+		pkt.data = nullptr;    // packet data will be allocated by the encoder
+		pkt.size = 0;
+		if( avcodec_encode_video2(this->codec_.get(), &pkt, nullptr, &gotOut) < 0 ){
+			av_free_packet(&pkt);
+			throw std::logic_error("Failed to encode video");
+		}
+		if (gotOut) {
+			pkt.pts = av_rescale_q_rnd(pkt.pts, vstr_->codec->time_base, vstr_->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			pkt.dts = av_rescale_q_rnd(pkt.dts, vstr_->codec->time_base, vstr_->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			pkt.duration = av_rescale_q(pkt.duration, vstr_->codec->time_base, vstr_->time_base);
+			pkt.stream_index = vstr_->index;
+
+			av_interleaved_write_frame(fmt_.get(), &pkt);
+			av_free_packet(&pkt);
+		}
+	}
+	av_write_trailer(fmt_.get());
+}
+
+
+}
+

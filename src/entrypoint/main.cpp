@@ -6,7 +6,7 @@
  */
 
 #include "../main/sha256.h"
-#include "../main/dolly/Camera.h"
+#include "../main/dolly/Dolly.h"
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <cstdio>
@@ -15,10 +15,10 @@ int main(int argc, char** argv)
 {
 	{
 		using namespace dolly;
-		Camera cam(640, 480);
-		cam.start("test.mp4");
+		RecorderBuilder b(640,480,"test.mp4");
+		Recorder r = b.build();
 		for( int i=0;i<1000;++i ) {
-			cam.record();
+			r.shot();
 		}
 	}
 	using namespace clr;
