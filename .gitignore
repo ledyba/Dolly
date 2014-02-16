@@ -42,3 +42,10 @@ Makefile.in
 
 # configure
 config.h.in
+config.h.in~
+Makefile
+config.h
+config.log
+config.status
+.deps
+.dirstamp
