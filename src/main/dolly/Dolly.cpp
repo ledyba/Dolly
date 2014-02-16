@@ -5,12 +5,11 @@
  * Copyright 2014, PSI
  */
 
+#include "Dolly.h"
+#include "Util.h"
 extern "C" {
 #include <libswscale/swscale.h>
 }
-#include "Dolly.h"
-#include <cinamo/String.h>
-
 
 namespace dolly {
 class CameraInit final{
@@ -103,11 +102,11 @@ Recorder RecorderBuilder::build()
 		/** Open the encoder for the audio stream to use it later. */
 		if ((error = avcodec_open2(codec, output_codec, nullptr)) < 0)
 		{
-			throw std::logic_error(cinamo::format("Could not open output codec (error '%s')\n", get_error_text(error)));
+			throw std::logic_error(format("Could not open output codec (error '%s')\n", get_error_text(error)));
 		}
 		if (!(fmt->oformat->flags & AVFMT_NOFILE)) {
 			if ((error = avio_open(&fmt->pb, filename_.c_str(), AVIO_FLAG_WRITE)) < 0) {
-				std::string msg( cinamo::format("Could not open '%s': %s\n", filename_.c_str(), get_error_text(error)) );
+				std::string msg( format("Could not open '%s': %s\n", filename_.c_str(), get_error_text(error)) );
 				throw std::logic_error(msg);
 			}
 		}
@@ -118,7 +117,7 @@ Recorder RecorderBuilder::build()
 		vframe -> height = height_;
 		/* allocate the encoded raw picture */
 		if ( av_image_alloc(vframe->data, vframe->linesize, codec->width, codec->height, codec->pix_fmt, 32) < 0) {
-			throw std::logic_error(cinamo::format("Could not allocate raw picture buffer\n"));
+			throw std::logic_error(format("Could not allocate raw picture buffer\n"));
 		}
 	}
 	FFSwsContext sws;

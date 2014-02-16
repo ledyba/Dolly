@@ -5,6 +5,13 @@
  * Copyright 2014, PSI
  */
 #pragma once
+#define __STDC_CONSTANT_MACROS 1
+#define __STDC_CONSTANT_MACROS 1
+#ifdef _STDINT_H
+#undef _STDINT_H
+#include <limits.h>
+#include <cstdint>
+#endif
 extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/opt.h>

@@ -14,4 +14,9 @@ sample_SOURCES =\
 	src/main/dolly/FFPtr.h\
 	src/main/dolly/FFPtr.cpp\
 	src/main/dolly/Dolly.h\
-	src/main/dolly/Dolly.cpp
+	src/main/dolly/Dolly.cpp\
+	src/main/dolly/Util.h\
+	src/main/dolly/Util.cpp
+
+AM_CPPFLAGS = $(CAIRO_CFLAGS) $(SDL2_CFLAGS) $(FFMPEG_CFLAGS)
+sample_LDADD = $(CAIRO_LIBS) $(SDL2_LIBS) $(FFMPEG_LIBS)

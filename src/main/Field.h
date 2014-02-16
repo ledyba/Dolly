@@ -6,10 +6,17 @@
  */
 #pragma once
 #include <unordered_map>
-#include <cinamo/ClassUtil.h>
 #include <cmath>
 
 namespace clr {
+
+#define DEFINE_MEMBER(rscope, wscope, type, name)\
+private:\
+	type name##_;\
+rscope:\
+	inline type const& name() const noexcept{return name##_;}\
+wscope:\
+	inline void name(type const& val){name##_ = val;}
 
 class Color final {
 private:
