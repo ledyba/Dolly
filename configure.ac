@@ -28,9 +28,9 @@ AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 	PKG_CONFIG=$_save_PKG_CONFIG[]dnl
 ])
 
-PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
-PKG_CHECK_MODULES_STATIC([SDL2], [sdl2])
-PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
+PKG_CHECK_MODULES([CAIRO], [cairo])
+PKG_CHECK_MODULES([SDL2], [sdl2])
+PKG_CHECK_MODULES([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
 AX_CXX_CHECK_LIB( gtest, [testing::TestInfo::name() const] )
 
 
