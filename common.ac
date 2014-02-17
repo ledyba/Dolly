@@ -1,0 +1,7 @@
+# common automake
+INCLUDES=-I$(top_srcdir)/include
+INCLUDES_PATH=$(top_srcdir)/include
+
+# library file
+LIB_PATH=$(top_srcdir)/lib
+LIBMISC=$(LIB_PATH)/libdolly.la

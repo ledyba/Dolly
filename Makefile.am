@@ -1,3 +1,7 @@
+include $(top_srcdir)/am.conf
+ACLOCAL_AMFLAGS = -I m4 
+SUBDIRS = src/include src/dolly src/sample
+
 AM_CXXFLAGS = -std=gnu++11
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
