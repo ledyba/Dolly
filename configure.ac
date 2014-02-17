@@ -1,14 +1,23 @@
-AC_PREREQ([2.63])
+AC_PREREQ([2.68])
 AC_INIT([Dooly], [1.0], [nasda60___at___hotmail.com], [dolly], [http://ledyba.org/])
 AM_INIT_AUTOMAKE([1.10 no-define foreign])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AC_PROG_CXX
 AC_LANG([C++])
+AC_PROG_CXX
+AC_PROG_CC
+AM_PROG_AS
+AC_PROG_CPP
+AC_PROG_AWK
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+LT_PATH_LD
 
 # Initialize libtool
-LT_PREREQ([2.2])
+LT_PREREQ([2.4])
 LT_INIT([win32-dll])
+
 
 AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 [
