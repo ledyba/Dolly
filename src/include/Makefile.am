@@ -1,4 +1,4 @@
-include $(top_srcdir)/common.ac
+include $(top_srcdir)/Makefile.am.common
 include_HEADERS = \
 	dolly/CairoPtr.h\
 	dolly/FFPtr.h\
