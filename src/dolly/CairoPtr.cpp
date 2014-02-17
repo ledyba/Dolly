@@ -4,7 +4,7 @@
  *
  * Copyright 2014, PSI
  */
-#include "CairoPtr.h"
+#include <dolly/CairoPtr.h>
 
 namespace dolly
 {

@@ -5,8 +5,8 @@
  * Copyright 2014, PSI
  */
 
-#include "Dolly.h"
-#include "Util.h"
+#include <dolly/Dolly.h>
+#include <dolly/Util.h>
 extern "C" {
 #include <libswscale/swscale.h>
 }

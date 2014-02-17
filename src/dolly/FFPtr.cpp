@@ -4,7 +4,7 @@
  *
  * Copyright 2014, PSI
  */
-#include "FFPtr.h"
+#include <dolly/FFPtr.h>
 
 namespace dolly
 {
