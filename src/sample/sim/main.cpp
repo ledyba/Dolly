@@ -5,8 +5,8 @@
  * Copyright 2013, psi
  */
 
-#include <dolly/Dolly.h>
 #include <SDL2/SDL.h>
+#include <dolly/Dolly.h>
 #include <iostream>
 #include <cstdio>
 #include <cmath>
@@ -115,8 +115,10 @@ int main(int argc, char** argv)
 			std::flush(std::cout);
 			cairo_set_source_rgba(r.cairo(), 1, 1, 1, 1);
 			cairo_paint(r.cairo());
-			double const a2 = i/100.0/100.0;
-			renderOne(r.cairo(), 640, 480, a2, a2);
+			double const max = 0.18 / 100;
+			double const a2 = ((i/100.0) * max) + 0.02/100;
+			double const a2c = 0.05/100;
+			renderOne(r.cairo(), 640, 480, a2, a2c);
 			r.shot();
 			r.shot();
 			r.shot();

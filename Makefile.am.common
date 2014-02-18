@@ -2,7 +2,7 @@
 INCLUDES_PATH=$(top_srcdir)/src/include
 
 AM_INCLUDES=-I$(top_srcdir)/src/include
-AM_CXXFLAGS=-I$(top_srcdir)/src/include -std=gnu++11
+AM_CXXFLAGS=-I$(top_srcdir)/src/include
 AUTOMAKE_OPTIONS = subdir-objects
 
 # library file
