@@ -12,12 +12,14 @@ AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-LT_PATH_LD
+AC_PROG_RANLIB
 
-# Initialize libtool
-LT_PREREQ([2.4])
-LT_INIT([win32-dll])
-
+dnl Initialize libtool
+dnl LT_PATH_LD
+dnl LT_LIB_DLLOAD
+dnl LT_PREREQ([2.4])
+dnl LT_INIT([win32-dll disable-fast-install])
+dnl LT_LANG([C++])
 
 AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 [
@@ -28,9 +30,9 @@ AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 	PKG_CONFIG=$_save_PKG_CONFIG[]dnl
 ])
 
-PKG_CHECK_MODULES([CAIRO], [cairo])
-PKG_CHECK_MODULES([SDL2], [sdl2])
-PKG_CHECK_MODULES([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
+PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
+PKG_CHECK_MODULES_STATIC([SDL2], [sdl2])
+PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
 AX_CXX_CHECK_LIB( gtest, [testing::TestInfo::name() const] )
 
 

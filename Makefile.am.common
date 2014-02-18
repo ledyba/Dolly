@@ -7,4 +7,4 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 # library file
 LIB_PATH=$(top_srcdir)/src/dolly
-LIBDOLLY=$(LIB_PATH)/libdolly.a
+LIBDOLLY=$(LIB_PATH)/libdolly.a $(CAIRO_LIBS) $(SDL2_LIBS) $(FFMPEG_LIBS)
