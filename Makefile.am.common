@@ -1,10 +1,10 @@
 # common automake
-INCLUDES=-I$(top_srcdir)/src/include
 INCLUDES_PATH=$(top_srcdir)/src/include
 
-AM_CXXFLAGS = -std=gnu++11
+AM_INCLUDES=-I$(top_srcdir)/src/include
+AM_CXXFLAGS=-I$(top_srcdir)/src/include -std=gnu++11
 AUTOMAKE_OPTIONS = subdir-objects
 
 # library file
 LIB_PATH=$(top_srcdir)/src/dolly
-LIBDOLLY=$(LIB_PATH)/libdolly.la
+LIBDOLLY=$(LIB_PATH)/libdolly.a
