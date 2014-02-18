@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@/dolly
+
+Name: libdolly
+Description: Movie Rendering Library
+Version: @PACKAGE_VERSION@
+Requires: cairo sdl2 libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale
+Libs: -L${libdir} -ldolly
+Libs.private: @LIBS@
+Cflags: -I${includedir}

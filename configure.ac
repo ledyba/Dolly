@@ -37,6 +37,7 @@ AX_CXX_CHECK_LIB( gtest, [testing::TestInfo::name() const] )
 
 
 AC_CONFIG_FILES([Makefile
+                 src/libdolly.pc
                  src/include/Makefile
                  src/dolly/Makefile
                  src/sample/Makefile])
