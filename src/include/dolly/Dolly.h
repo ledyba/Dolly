@@ -40,12 +40,18 @@ private:
 	int height_;
 	std::string filename_;
 	enum AVCodecID videoCodec_;
+	int bitrate_;
+	int frameRateDen_;
+	int frameRateNum_;
 public:
 	CameraBuilder(const int width, const int height, std::string const& filename)
 	:width_(width)
 	,height_(height)
 	,filename_(filename)
 	,videoCodec_(AV_CODEC_ID_NONE)
+	,bitrate_(300*1024)
+	,frameRateDen_(1)
+	,frameRateNum_(30)
 	{
 	}
 #define SET_(TYPE, NAME) \
@@ -62,6 +68,10 @@ public:
 	GET_SET_(int, height);
 	GET_SET_(std::string, filename);
 	GET_SET_(enum AVCodecID, videoCodec);
+	GET_SET_(int, bitrate);
+	CameraBuilder& frameRate(const int den, const int num) { this->frameRateDen_=den; this->frameRateNum_=num; return *this; }
+	GET_(int, frameRateDen);
+	GET_(int, frameRateNum);
 #undef GET_SET_
 #undef GET_
 #undef SET_

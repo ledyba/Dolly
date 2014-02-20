@@ -70,12 +70,12 @@ std::unique_ptr<Camera> CameraBuilder::build()
 		 * Set the basic encoder parameters.
 		 * The input file's sample rate is used to avoid a sample rate conversion.
 		 */
-		codec->bit_rate = 400000;
+		codec->bit_rate = this->bitrate_;
 		/* resolution must be a multiple of two */
 		codec->width = this->width_;
 		codec->height = this->height_;
 		/* frames per second */
-		codec->time_base = AVRational { 1, 30 };
+		codec->time_base = AVRational { this->frameRateDen_, this->frameRateNum_ };
 		codec->gop_size = 12; /* emit one intra frame every twelve frames at most */
 		codec->pix_fmt = AV_PIX_FMT_YUV420P;
 		if (codec->codec_id == AV_CODEC_ID_MPEG2VIDEO)
