@@ -5,12 +5,15 @@
  * Copyright 2014, PSI
  */
 #pragma once
+
+#include <cstdint>
+#include <memory>
+
 #define __STDC_CONSTANT_MACROS 1
 #define __STDC_CONSTANT_MACROS 1
+#include <limits.h>
 #ifdef _STDINT_H
 #undef _STDINT_H
-#include <limits.h>
-#include <cstdint>
 #endif
 extern "C" {
 #include <libavutil/avutil.h>
@@ -25,16 +28,16 @@ extern "C" {
 
 namespace dolly {
 
-class Recorder;
+class Camera;
 
-class RecorderBuilder final {
+class CameraBuilder final {
 private:
 	int width_;
 	int height_;
 	std::string filename_;
 	enum AVCodecID videoCodec_;
 public:
-	RecorderBuilder(const int width, const int height, std::string const& filename)
+	CameraBuilder(const int width, const int height, std::string const& filename)
 	:width_(width)
 	,height_(height)
 	,filename_(filename)
@@ -42,7 +45,7 @@ public:
 	{
 	}
 #define SET_(TYPE, NAME) \
-	inline RecorderBuilder& NAME(TYPE const& val) {\
+	inline CameraBuilder& NAME(TYPE const& val) {\
 		this->NAME##_ = val;\
 		return *this;\
 	}
@@ -59,12 +62,11 @@ public:
 #undef GET_
 #undef SET_
 public:
-	Recorder build();
+	std::unique_ptr<Camera> build();
 };
 
-class Recorder final {
+class Camera final {
 private:
-	bool moved_;
 	int frameCount_;
 private: // generic
 	const std::string filename_;
@@ -81,12 +83,13 @@ private: // ffmpeg
 	AVCodecContext* codec_;
 	FFFrame vframe_;
 private:
-	friend class RecorderBuilder;
-	Recorder() = delete;
-	Recorder(Recorder const&) = delete;
-	Recorder& operator=(Recorder&&) = delete;
-	Recorder& operator=(Recorder const&) = delete;
-	Recorder(
+	friend class CameraBuilder;
+	Camera() = delete;
+	Camera(Camera const&) = delete;
+	Camera(Camera&&) = delete;
+	Camera& operator=(Camera&&) = delete;
+	Camera& operator=(Camera const&) = delete;
+	Camera(
 		std::string const& filename,
 		const int width,
 		const int height,
@@ -101,8 +104,7 @@ private:
 private:
 	void closeVideo();
 public:
-	Recorder(Recorder&&);
-	~Recorder();
+	~Camera();
 public:
 	cairo_t* cairo() { return cairo_.get(); }
 	cairo_surface_t* surface() { return surface_.get(); }

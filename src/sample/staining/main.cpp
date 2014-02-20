@@ -15,8 +15,8 @@ int main(int argc, char** argv)
 {
 	{
 		using namespace dolly;
-		RecorderBuilder b(640,480,"test.mp4");
-		Recorder r = b.build();
+		CameraBuilder b(640,480,"test.mp4");
+		Camerar r = b.build();
 		cairo_set_source_rgba(r.cairo(), 1, 1, 1, 1);
 		cairo_paint(r.cairo());
 		cairo_text_extents_t ext;

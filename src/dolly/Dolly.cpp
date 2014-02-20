@@ -33,7 +33,7 @@ static char * const get_error_text(const int error)
 	return error_buffer;
 }
 
-Recorder RecorderBuilder::build()
+std::unique_ptr<Camera> CameraBuilder::build()
 {
 	FFFormatContext fmt;
 	AVStream* vstr;
@@ -126,7 +126,7 @@ Recorder RecorderBuilder::build()
 	}
 	CairoSurface surface( cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width_, height_) );
 	Cairo cairo( cairo_create(surface.get()) );
-	return std::move(Recorder(
+	return std::unique_ptr<Camera>(new Camera(
 		filename_,
 		width_,
 		height_,
@@ -140,7 +140,7 @@ Recorder RecorderBuilder::build()
 	));
 }
 
-Recorder::Recorder(
+Camera::Camera(
 	std::string const& filename,
 	const int width,
 	const int height,
@@ -152,8 +152,7 @@ Recorder::Recorder(
 	AVCodecContext* codec,
 	FFFrame&& vframe
 )
-:moved_(false)
-,frameCount_(0)
+:frameCount_(0)
 ,filename_(filename)
 ,width_(width)
 ,height_(height)
@@ -169,24 +168,7 @@ Recorder::Recorder(
 	av_dump_format(fmt_.get(), 0, filename.c_str(), 1);
 }
 
-Recorder::Recorder(Recorder&& r)
-:moved_(false)
-,frameCount_(r.frameCount_)
-,filename_(std::move(r.filename_))
-,width_(r.width_)
-,height_(r.height_)
-,cairo_(std::move(r.cairo_))
-,surface_(std::move(r.surface_))
-,sws_(std::move(r.sws_))
-,fmt_(std::move(r.fmt_))
-,vstr_(r.vstr_)
-,codec_(r.codec_)
-,vframe_(std::move(r.vframe_))
-{
-	r.moved_ = true;
-	r.vstr_ = nullptr;
-}
-void Recorder::shot()
+void Camera::shot()
 {
 	{
 		uint8_t * src[4] = { cairo_image_surface_get_data(surface_.get()), nullptr, nullptr, nullptr };
@@ -234,16 +216,14 @@ void Recorder::shot()
 	++frameCount_;
 }
 
-Recorder::~Recorder()
+Camera::~Camera()
 {
-	if(!moved_){
-		try {
-			this->closeVideo();
-		} catch (std::exception& e) {
-		}
+	try {
+		this->closeVideo();
+	} catch (std::exception& e) {
 	}
 }
-void Recorder::closeVideo()
+void Camera::closeVideo()
 {
 	for( int gotOut = 1; gotOut; ) {
 		AVPacket pkt;
