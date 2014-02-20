@@ -4,6 +4,8 @@
  *
  * Copyright 2014, psi
  */
+#include "../config.h"
+#if HAVE_X11
 
 #include "Window.h"
 #include <X11/Xlib.h>
@@ -141,3 +143,4 @@ std::unique_ptr<Window> createWindow(const int width, const int height){
 }
 
 }
+#endif

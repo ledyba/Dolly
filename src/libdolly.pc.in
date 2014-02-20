@@ -6,7 +6,7 @@ includedir=@includedir@/dolly
 Name: libdolly
 Description: Movie Rendering Library
 Version: @PACKAGE_VERSION@
-Requires: cairo sdl2 libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale
+Requires: cairo x11 libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale
 Libs: -L${libdir} -ldolly
 Libs.private: @LIBS@
 Cflags: -I${includedir}

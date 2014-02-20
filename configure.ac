@@ -27,14 +27,14 @@ AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 	AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
 	_save_PKG_CONFIG=$PKG_CONFIG
 	PKG_CONFIG="$PKG_CONFIG --static"
-	PKG_CHECK_MODULES([$1], [$2], [$3], [$4], [$5])
+	PKG_CHECK_MODULES([$1], [$2], [$3], [$4])
 	PKG_CONFIG=$_save_PKG_CONFIG[]dnl
 ])
 
 PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
+PKG_CHECK_MODULES_STATIC([X11], [x11], [AC_DEFINE([HAVE_X11], [1], [Use X11])], [echo -n])
 PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
 AX_CXX_CHECK_LIB( gtest, [testing::TestInfo::name() const] )
-
 
 AC_CONFIG_FILES([Makefile
                  src/libdolly.pc
