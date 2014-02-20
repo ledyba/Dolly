@@ -56,8 +56,9 @@ void X11Window::showFrame(cairo_surface_t* const  surf)
 }
 
 bool X11Window::handleWindowEvent(cairo_surface_t* const surf){
-	const int pendings = XPending(display_);
-	if(!display_ || pendings <= 0 ){
+	if(!display_){
+		return false;
+	}else if(XPending(display_) <= 0 ){
 		return false;
 	}
 	XEvent e;
