@@ -6,11 +6,15 @@
  */
 #pragma once
 
+#ifndef __STDC_LIMIT_MACROS
+#  define __STDC_LIMIT_MACROS 1
+#endif
+#ifndef __STDC_CONSTANT_MACROS
+#  define __STDC_CONSTANT_MACROS 1
+#endif
+
 #include <cstdint>
 #include <memory>
-
-#define __STDC_CONSTANT_MACROS 1
-#define __STDC_CONSTANT_MACROS 1
 #include <limits.h>
 #ifdef _STDINT_H
 #undef _STDINT_H

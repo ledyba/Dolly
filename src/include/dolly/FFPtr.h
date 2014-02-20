@@ -5,8 +5,13 @@
  * Copyright 2014, PSI
  */
 #pragma once
-#define __STDC_CONSTANT_MACROS 1
-#define __STDC_LIMIT_MACROS 1
+#ifndef __STDC_LIMIT_MACROS
+#  define __STDC_LIMIT_MACROS 1
+#endif
+#ifndef __STDC_CONSTANT_MACROS
+#  define __STDC_CONSTANT_MACROS 1
+#endif
+
 #ifdef _STDINT_H
 #undef _STDINT_H
 #include <limits.h>
