@@ -6,7 +6,6 @@
  */
 
 #include <dolly/Dolly.h>
-#include <SDL2/SDL.h>
 #include <iostream>
 #include <cstdio>
 

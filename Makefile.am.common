@@ -1,8 +1,18 @@
 # common automake
 INCLUDES_PATH=$(top_srcdir)/src/include
 
-AM_INCLUDES=-I$(top_srcdir)/src/include
-AM_CXXFLAGS=-I$(top_srcdir)/src/include
+if DEBUG
+AM_INCLUDES=-I$(top_srcdir)/src/include -g3 -O0
+AM_CXXFLAGS=-I$(top_srcdir)/src/include -g3 -O0
+AM_CFLAGS=-I$(top_srcdir)/src/include -g3 -O0
+AM_CPPFLAGS=
+else
+AM_INCLUDES=-I$(top_srcdir)/src/include -O3
+AM_CXXFLAGS=-I$(top_srcdir)/src/include -O3
+AM_CFLAGS=-I$(top_srcdir)/src/include -O3
+AM_CPPFLAGS=
+endif
+
 AUTOMAKE_OPTIONS = subdir-objects
 
 # library file

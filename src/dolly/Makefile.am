@@ -8,8 +8,8 @@ libdolly_a_SOURCES=\
 	Window.h\
 	WindowX11.cpp
 
-libdolly_a_CPPFLAGS = $(CAIRO_CFLAGS) $(SDL2_CFLAGS) $(FFMPEG_CFLAGS)
-#libdolly_a_LIBADD = $(CAIRO_LIBS) $(SDL2_LIBS) $(FFMPEG_LIBS)
+libdolly_a_CPPFLAGS = $(CAIRO_CFLAGS) $(X11_CFLAGS) $(FFMPEG_CFLAGS)
+#libdolly_a_LIBADD = $(CAIRO_LIBS) $(X11_LIBS) $(FFMPEG_LIBS)
 
 #libdolly_la_LDFLAGS = -no-undefined \
 #        -avoid-version \

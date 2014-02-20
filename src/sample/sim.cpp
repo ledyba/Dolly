@@ -5,7 +5,6 @@
  * Copyright 2013, psi
  */
 
-#include <SDL2/SDL.h>
 #include <dolly/Dolly.h>
 #include <iostream>
 #include <cstdio>
