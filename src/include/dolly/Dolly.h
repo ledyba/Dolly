@@ -33,11 +33,13 @@ extern "C" {
 namespace dolly {
 
 class Camera;
+class Window;
 
 class CameraBuilder final {
 private:
 	int width_;
 	int height_;
+	bool showWindow_;
 	std::string filename_;
 	enum AVCodecID videoCodec_;
 	int bitrate_;
@@ -47,6 +49,7 @@ public:
 	CameraBuilder(const int width, const int height, std::string const& filename)
 	:width_(width)
 	,height_(height)
+	,showWindow_(true)
 	,filename_(filename)
 	,videoCodec_(AV_CODEC_ID_NONE)
 	,bitrate_(300*1024)
@@ -72,6 +75,7 @@ public:
 	CameraBuilder& frameRate(const int den, const int num) { this->frameRateDen_=den; this->frameRateNum_=num; return *this; }
 	GET_(int, frameRateDen);
 	GET_(int, frameRateNum);
+	GET_SET_(bool, showWindow);
 #undef GET_SET_
 #undef GET_
 #undef SET_
@@ -82,6 +86,7 @@ public:
 class Camera final {
 private:
 	int frameCount_;
+	std::unique_ptr<Window> window_;
 private: // generic
 	const std::string filename_;
 	const int width_;
@@ -107,6 +112,7 @@ private:
 		std::string const& filename,
 		const int width,
 		const int height,
+		bool showWindow,
 		Cairo&& cairo,
 		CairoSurface&& surface,
 		FFSwsContext&& sws,

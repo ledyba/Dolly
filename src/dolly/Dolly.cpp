@@ -7,6 +7,7 @@
 
 #include <dolly/Dolly.h>
 #include <dolly/Util.h>
+#include "Window.h"
 extern "C" {
 #include <libswscale/swscale.h>
 }
@@ -130,6 +131,7 @@ std::unique_ptr<Camera> CameraBuilder::build()
 		filename_,
 		width_,
 		height_,
+		showWindow_,
 		std::move(cairo),
 		std::move(surface),
 		std::move(sws),
@@ -144,6 +146,7 @@ Camera::Camera(
 	std::string const& filename,
 	const int width,
 	const int height,
+	bool showWindow,
 	Cairo&& cairo,
 	CairoSurface&& surface,
 	FFSwsContext&& sws,
@@ -153,6 +156,7 @@ Camera::Camera(
 	FFFrame&& vframe
 )
 :frameCount_(0)
+,window_(showWindow ? createWindow(width, height) : nullptr)
 ,filename_(filename)
 ,width_(width)
 ,height_(height)
@@ -170,6 +174,12 @@ Camera::Camera(
 
 void Camera::shot()
 {
+	if(this->window_){
+		window_->showFrame(surface_.get());
+		if(window_->handleWindowEvent(surface_.get())){
+			std::unique_ptr<Window>().swap(window_);
+		}
+	}
 	{
 		uint8_t * src[4] = { cairo_image_surface_get_data(surface_.get()), nullptr, nullptr, nullptr };
 		int stride[4] = { cairo_image_surface_get_stride(surface_.get()), 0, 0, 0 };

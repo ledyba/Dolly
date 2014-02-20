@@ -32,7 +32,6 @@ AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 ])
 
 PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
-PKG_CHECK_MODULES_STATIC([SDL2], [sdl2])
 PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
 AX_CXX_CHECK_LIB( gtest, [testing::TestInfo::name() const] )
 
