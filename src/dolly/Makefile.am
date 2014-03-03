@@ -6,7 +6,8 @@ libdolly_a_SOURCES=\
 	Dolly.cpp\
 	Util.cpp\
 	Window.h\
-	WindowX11.cpp
+	WindowX11.cpp\
+	WindowWin32.cpp
 
 libdolly_a_CPPFLAGS = $(CAIRO_CFLAGS) $(X11_CFLAGS) $(FFMPEG_CFLAGS)
 #libdolly_a_LIBADD = $(CAIRO_LIBS) $(X11_LIBS) $(FFMPEG_LIBS)

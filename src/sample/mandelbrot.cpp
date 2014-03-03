@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 		using namespace dolly;
 		CameraBuilder b(640,480,"sim_test.mp4");
 		std::unique_ptr<Camera> r ( b.bitrate(1000*1000).build() );
-		for( int i=0;i<500;++i ) {
+		for( int i=0;i<900;++i ) {
 			std::printf("Rendering frame: %d\n", i);
 			std::flush(std::cout);
 			cairo_set_source_rgba(r->cairo(), 1, 1, 1, 1);
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 			const double m = (pow(1.015, i));
 			const double s = 1/m;
 			const double cx = -1.40115575 +s;
-			renderOne(r->cairo(), i*i/100+300, 640, 480, cx, 0, 2*s, 2*s*3/4);
+			renderOne(r->cairo(), static_cast<int>(pow(i, 2.5)/1000)+300, 640, 480, cx, 0, 2*s, 2*s*3/4);
 			r->shot();
 		}
 	}

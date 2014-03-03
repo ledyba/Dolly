@@ -56,12 +56,15 @@ AC_CHECK_LIB(gmp, __gmpz_init, [
 					[AC_MSG_ERROR([GNU MP not found, see http://gmplib.org/])])],
 					[AC_MSG_WARN([GNU MP not found, see http://gmplib.org/])
 					 AM_CONDITIONAL(HAVE_GMP, false)])
-
+AC_CHECK_HEADER([Windows.h],
+				[AC_DEFINE([HAVE_WINDOWS_H], [1],[Windows])
+				 AM_CONDITIONAL(HAVE_WINDOWS, true)]
+				 LIBS="-lgdi32 $LIBS")
 
 AC_CONFIG_FILES([Makefile
-                 src/libdolly.pc
-                 src/include/Makefile
-                 src/dolly/Makefile
-                 src/sample/Makefile])
+				 src/libdolly.pc
+				 src/include/Makefile
+				 src/dolly/Makefile
+				 src/sample/Makefile])
 AC_OUTPUT
 
