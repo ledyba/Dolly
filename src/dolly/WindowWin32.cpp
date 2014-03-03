@@ -137,9 +137,9 @@ Win32Window::Win32Window(const int width, const int height)
 }
 Win32Window::~Win32Window()
 {
+	this->closeWindow();
 	auto mod = GetModuleHandle(NULL);
 	UnregisterClass((LPCSTR)((int)atom_), mod);
-	this->closeWindow();
 }
 
 std::unique_ptr<Window> createWindow(const int width, const int height)
