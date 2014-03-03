@@ -132,7 +132,7 @@ Win32Window::Win32Window(const int width, const int height)
 	}
 	const DWORD style = (WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME) | WS_VISIBLE;
 	RECT r {0,0,width,height};
-	AdjustWindowRect(&r,style,false);
+	AdjustWindowRectEx(&r,style,false,WS_EX_TOOLWINDOW|WS_EX_TOPMOST);
 	window_ = CreateWindowEx(WS_EX_TOOLWINDOW|WS_EX_TOPMOST, (LPCSTR)((int)atom_), TEXT("Dolly"), style, CW_USEDEFAULT, CW_USEDEFAULT, r.right-r.left, r.bottom-r.top, NULL, 0, mod, this);
 }
 Win32Window::~Win32Window()
