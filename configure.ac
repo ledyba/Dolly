@@ -44,9 +44,6 @@ AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 	PKG_CONFIG=$_save_PKG_CONFIG[]dnl
 ])
 
-PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
-PKG_CHECK_MODULES_STATIC([X11], [x11], [AC_DEFINE([HAVE_X11], [1], [Use X11])], [echo -n])
-PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
 AX_CXX_CHECK_LIB( gtest, [testing::TestInfo::name() const] )
 AC_CHECK_LIB(gmp, __gmpz_init, [
 	AC_CHECK_HEADER([gmp.h],
@@ -60,7 +57,16 @@ AC_CHECK_HEADER([Windows.h],
 				[AC_DEFINE([HAVE_WINDOWS_H], [1],[Windows])
 				 AM_CONDITIONAL(HAVE_WINDOWS, true)]
 				 LIBS="-lgdi32 $LIBS")
-
+PKG_CHECK_MODULES_STATIC([X11], [x11], [AC_DEFINE([HAVE_X11], [1], [Use X11])], [echo -n])
+PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
+if [ $HAVE_WINDOWS_H ]; then
+	PKG_CHECK_MODULES_STATIC([CAIRO], [cairo cairo-win32])
+	EXT_PKGS=cairo-win32
+else
+	PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
+fi
+AC_SUBST(EXT_PKGS)
+AC_SUBST(LIBS)
 AC_CONFIG_FILES([Makefile
 				 src/libdolly.pc
 				 src/include/Makefile
