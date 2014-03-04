@@ -105,22 +105,22 @@ int main(int argc, char** argv)
 	{
 		using namespace dolly;
 		CameraBuilder b(640,480,"sim_test.mp4");
-		std::unique_ptr<Camera> r ( b.build() );
-		cairo_set_source_rgba(r->cairo(), 1, 1, 1, 1);
-		cairo_paint(r->cairo());
-		cairo_set_font_size (r->cairo(), 64.0);
+		std::unique_ptr<Camera> cam ( b.build() );
+		cairo_set_source_rgba(cam->cairo(), 1, 1, 1, 1);
+		cairo_paint(cam->cairo());
+		cairo_set_font_size (cam->cairo(), 64.0);
 		for( int i=0;i<100;++i ) {
 			std::printf("Rendering frame: %d\n", i);
 			std::flush(std::cout);
-			cairo_set_source_rgba(r->cairo(), 1, 1, 1, 1);
-			cairo_paint(r->cairo());
+			cairo_set_source_rgba(cam->cairo(), 1, 1, 1, 1);
+			cairo_paint(cam->cairo());
 			double const max = 0.18 / 100;
 			double const a2 = ((i/100.0) * max) + 0.02/100;
 			double const a2c = 0.05/100;
-			renderOne(r->cairo(), 640, 480, a2, a2c);
-			r->shot();
-			r->shot();
-			r->shot();
+			renderOne(cam->cairo(), 640, 480, a2, a2c);
+			cam->shot();
+			cam->shot();
+			cam->shot();
 		}
 	}
 	return 0;
