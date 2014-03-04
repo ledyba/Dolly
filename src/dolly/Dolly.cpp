@@ -169,7 +169,7 @@ void Camera::shot()
 	if(this->window_){
 		window_->showFrame(surface_.get());
 		if(window_->handleWindowEvent(surface_.get())){
-			std::unique_ptr<Window>().swap(window_);
+			window_.release();
 		}
 	}
 	if( this->film_ ) {
