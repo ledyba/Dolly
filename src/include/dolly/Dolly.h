@@ -27,19 +27,20 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-#include "FFPtr.h"
 #include "CairoPtr.h"
 
 namespace dolly {
 
 class Camera;
 class Window;
+class Film;
 
 class CameraBuilder final {
 private:
 	int width_;
 	int height_;
 	bool showWindow_;
+	bool dryRun_;
 	std::string filename_;
 	enum AVCodecID videoCodec_;
 	int bitrate_;
@@ -50,6 +51,7 @@ public:
 	:width_(width)
 	,height_(height)
 	,showWindow_(true)
+	,dryRun_(false)
 	,filename_(filename)
 	,videoCodec_(AV_CODEC_ID_NONE)
 	,bitrate_(1024*1024)
@@ -76,6 +78,7 @@ public:
 	GET_(int, frameRateDen);
 	GET_(int, frameRateNum);
 	GET_SET_(bool, showWindow);
+	GET_SET_(bool, dryRun);
 #undef GET_SET_
 #undef GET_
 #undef SET_
@@ -83,28 +86,14 @@ public:
 	std::unique_ptr<Camera> build();
 };
 
-class Film final {
-
-};
-
 class Camera final {
 private:
-	int frameCount_;
 	std::unique_ptr<Window> window_;
-private: // generic
-	const std::string filename_;
-	const int width_;
-	const int height_;
 private: // cairo
 	Cairo cairo_;
 	CairoSurface surface_;
-private: // connect
-	FFSwsContext sws_;
-private: // ffmpeg
-	FFFormatContext fmt_;
-	AVStream* vstr_;
-	AVCodecContext* codec_;
-	FFFrame vframe_;
+private: //ff
+	std::unique_ptr<Film> film_;
 private:
 	friend class CameraBuilder;
 	Camera() = delete;
@@ -113,20 +102,11 @@ private:
 	Camera& operator=(Camera&&) = delete;
 	Camera& operator=(Camera const&) = delete;
 	Camera(
-		std::string const& filename,
-		const int width,
-		const int height,
-		bool showWindow,
+		std::unique_ptr<Window>&& window,
 		Cairo&& cairo,
 		CairoSurface&& surface,
-		FFSwsContext&& sws,
-		FFFormatContext&& fmt,
-		AVStream* vstr,
-		AVCodecContext* codec,
-		FFFrame&& vframe
+		std::unique_ptr<Film>&& film
 	);
-private:
-	void closeVideo();
 public:
 	~Camera();
 public:

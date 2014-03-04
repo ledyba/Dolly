@@ -21,7 +21,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 }
-#include "Ptr.h"
+#include <dolly/Ptr.h>
 
 namespace dolly {
 typedef Ptr<AVCodecContext> FFCodecContext;

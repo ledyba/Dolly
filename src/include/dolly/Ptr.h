@@ -11,9 +11,16 @@
 
 namespace dolly
 {
-
 template <typename T>
 void ptrCloser(T* ptr);
+
+
+template <typename T>
+class Closer {
+	void operator()(T* t) {
+		ptrCloser<T>(t);
+	}
+};
 
 template<typename T>
 class Ptr;
