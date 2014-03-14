@@ -61,4 +61,8 @@ m4/lt~obsolete.m4
 src/libdolly.pc
 src/sample/sim
 src/sample/word_rotation
+src/sample/runge_kutta
+src/sample/mandelbrot
 src/stamp-h1
+
+*.mp4
