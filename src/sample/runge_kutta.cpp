@@ -87,17 +87,12 @@ void renderOne(cairo_t* cr, World& w, int const width, int const height)
 	const double cw = width/2.0;
 	const double ch = height/2.0;
 	const double line = cw/3;
-	double x1old = cw + line * sin(w.th1);
-	double y1old = ch + line * cos(w.th1);
-
-	double x2old = cw + line * sin(w.th1) + line * sin(w.th2);
-	double y2old = ch + line * cos(w.th1) + line * cos(w.th2);
 	for(int i = 0; i<10; ++i){
 		for(int j = 0; j<10; ++j){
 			update(w);
 		}
-		//cairo_set_source_rgba(cr, 0, 0, 0, 0.07);
-		//cairo_paint(cr);
+		cairo_set_source_rgba(cr, 0, 0, 0, 0.07);
+		cairo_paint(cr);
 
 		const double x1 = cw + line * sin(w.th1);
 		const double y1 = ch + line * cos(w.th1);
@@ -105,20 +100,15 @@ void renderOne(cairo_t* cr, World& w, int const width, int const height)
 		const double x2 = cw + line * sin(w.th1) + line * sin(w.th2);
 		const double y2 = ch + line * cos(w.th1) + line * cos(w.th2);
 
-		cairo_move_to(cr, x1old, y1old);
+		cairo_move_to(cr, cw, ch);
 		cairo_line_to(cr, x1, y1);
-		cairo_set_source_rgba(cr, 1, 0.6, 0.6, 0.1);
+		cairo_set_source_rgba(cr, 1, 0.6, 0.6, 1);
 		cairo_stroke(cr);
 
-		cairo_move_to(cr, x2old, y2old);
+		cairo_move_to(cr, x1, y1);
 		cairo_line_to(cr, x2, y2);
-		cairo_set_source_rgba(cr, 0.6, 1, 0.6, 0.1);
+		cairo_set_source_rgba(cr, 0.6, 1, 0.6, 1);
 		cairo_stroke(cr);
-
-		x1old = x1;
-		y1old = y1;
-		x2old = x2;
-		y2old = y2;
 	}
 }
 
