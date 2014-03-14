@@ -55,16 +55,20 @@ AC_CHECK_LIB(gmp, __gmpz_init, [
 					 AM_CONDITIONAL(HAVE_GMP, false)])
 AC_CHECK_HEADER([Windows.h],
 				[AC_DEFINE([HAVE_WINDOWS_H], [1],[Windows])
-				 AM_CONDITIONAL(HAVE_WINDOWS, true)]
-				 LIBS="-lgdi32 $LIBS")
+				 AM_CONDITIONAL(HAVE_WINDOWS, true)
+				 LIBS="-lgdi32 $LIBS"],
+				 [AM_CONDITIONAL(HAVE_WINDOWS, false)]
+				)
 PKG_CHECK_MODULES_STATIC([X11], [x11], [AC_DEFINE([HAVE_X11], [1], [Use X11])], [echo -n])
 PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
-if [ $HAVE_WINDOWS_H ]; then
-	PKG_CHECK_MODULES_STATIC([CAIRO], [cairo cairo-win32])
-	EXT_PKGS=cairo-win32
-else
-	PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
-fi
+
+AM_COND_IF([HAVE_WINDOWS], [
+		PKG_CHECK_MODULES_STATIC([CAIRO], [cairo cairo-win32])
+		EXT_PKGS=cairo-win32
+	], [
+		PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
+	])
+
 AC_SUBST(EXT_PKGS)
 AC_SUBST(LIBS)
 AC_CONFIG_FILES([Makefile
