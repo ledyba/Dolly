@@ -1,5 +1,5 @@
 include $(top_srcdir)/Makefile.am.common
-noinst_PROGRAMS = word_rotation sim mandelbrot runge_kutta
+noinst_PROGRAMS = word_rotation sim mandelbrot runge_kutta 3d
 
 word_rotation_SOURCES = word_rotation.cpp
 word_rotation_LDADD = $(LIBDOLLY)
@@ -12,6 +12,9 @@ mandelbrot_LDADD = $(LIBDOLLY)
 
 runge_kutta_SOURCES = runge_kutta.cpp
 runge_kutta_LDADD = $(LIBDOLLY)
+
+3d_SOURCES = 3d.cpp
+3d_LDADD = $(LIBDOLLY)
 
 if HAVE_GMP
 noinst_PROGRAMS += 

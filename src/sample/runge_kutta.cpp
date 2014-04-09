@@ -124,11 +124,10 @@ int main(int argc, char** argv)
 	world.th2a = -0.001;
 	{
 		using namespace dolly;
-		CameraBuilder b(640,480,"sim_test.mp4");
-		std::unique_ptr<Camera> cam ( b.build() );
+		CameraBuilder b(640,480,"runge_kutta.mp4");
+		std::unique_ptr<Camera> cam ( b.bitrate(1024*1024).build() );
 		cairo_set_source_rgba(cam->cairo(), 0, 0, 0, 1);
 		cairo_paint(cam->cairo());
-		cairo_set_font_size (cam->cairo(), 64.0);
 		for( int i=0;i<18000;++i ) {
 			std::printf("Rendering frame: %d\n", i);
 			std::flush(std::cout);
