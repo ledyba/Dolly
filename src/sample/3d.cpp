@@ -8,6 +8,7 @@
 #include <dolly/Dolly.h>
 #include <iostream>
 #include <cstdio>
+#include <cassert>
 
 class Color final{
 	float r_;
@@ -379,6 +380,117 @@ public:
 		cairo_line_to(cr_, t.x() / t.w(), t.y() / t.w());
 		cairo_stroke(cr_);
 	}
+	void renderTex(int const x, int const y, cairo_surface_t* img, Vector4 const& texPt_)
+	{
+		Vector4 const texPt( texPt_ / texPt_.w() );
+		const int texX = static_cast<int>(texPt.x());
+		const int texY = static_cast<int>(texPt.y());
+		unsigned char const * const dat = cairo_image_surface_get_data(img);
+		int const stride = cairo_image_surface_get_stride(img);
+		const unsigned int col = *reinterpret_cast<const unsigned int*>( &dat[texY * stride + texX * 4] );
+		unsigned int const alphai = (col >> 24) & 0xff;
+		float const alpha = alphai == 0 ? 255.0 : alphai;
+		Color const c(
+				((col & 0xff0000) >> 16) / alpha,
+				((col & 0x00ff00) >>  8) / alpha,
+				((col & 0x0000ff) >>  0) / alpha, alpha / 255.0);
+		dot(x,y,c);
+	}
+	void triangle(
+			Vector4 const& a_, Vector4 const& b_, Vector4 const& c_,
+			cairo_surface_t* img,
+			Vector4 const& u_, Vector4 const& v_, Vector4 const& w_)
+	{
+		Vector4 a(proj_ * model_ * a_);
+		Vector4 b(proj_ * model_ * b_);
+		Vector4 c(proj_ * model_ * c_);
+		Vector4 u(u_ / a.w());
+		Vector4 v(v_ / b.w());
+		Vector4 w(w_ / c.w());
+//		Vector4 u(u_);
+//		Vector4 v(v_);
+//		Vector4 w(w_);
+		a = toScreen(a);
+		b = toScreen(b);
+		c = toScreen(c);
+		using std::swap;
+		if( a.y() > b.y() ) { swap(a,b); swap(u,v); }
+		if( a.y() > c.y() ) { swap(a,c); swap(u,w); }
+		if( b.y() > c.y() ) { swap(b,c); swap(v,w); }
+		if((b.y() - a.y()) < 1) {
+			const bool isAvecLeft = a.x() < b.x();
+			const Vector4 lp = (isAvecLeft) ? a : b;
+			const Vector4 rp = (isAvecLeft) ? b : a;
+			const int startY = round(a.y());
+			const Vector4 lpt = (isAvecLeft) ? u : v;
+			const Vector4 rpt = (isAvecLeft) ? v : u;
+			assert( (rp.x() - lp.x()) > -0.1 );
+			for( int dy = 0, maxY=round( std::max((c-a).y(), (c-b).y()) ); dy<maxY; ++dy) {
+				const Vector4 l ( (lp * (maxY-dy) + c * dy) / maxY );
+				const Vector4 r ( (rp * (maxY-dy) + c * dy) / maxY );
+				const Vector4 lt ( (lpt * (maxY-dy) + w * dy) / maxY );
+				const Vector4 rt ( (rpt * (maxY-dy) + w * dy) / maxY );
+				const int startX = round(l.x());
+				for( int dx=0, maxX=round(r.x() - l.x()); dx<maxX; ++dx ) {
+					const Vector4 texPt ( ( (lt * (maxX-dx)) + (rt * dx) ) / maxX );
+					renderTex(startX+dx, startY+dy, img, texPt);
+				}
+			}
+		}else{
+			const int startY = round(a.y());
+			const int maxDY = round(c.y() - a.y());
+			const int middleDY = round(b.y() - a.y());
+			if( (c.x()-a.x())/maxDY < (b.x()-a.x())/middleDY ) { //cが左
+				for( int dy = 0; dy<middleDY; ++dy) {
+					const Vector4 l ( (a *    (maxDY-dy) + c * dy) / maxDY );
+					const Vector4 r ( (a * (middleDY-dy) + b * dy) / middleDY );
+					const Vector4 lt ( (u *    (maxDY-dy) + w * dy) / maxDY );
+					const Vector4 rt ( (u * (middleDY-dy) + v * dy) / middleDY );
+					const int startX = round(l.x());
+					for( int dx=0, maxX=round(r.x() - l.x()); dx<maxX; ++dx ) {
+						const Vector4 texPt ( ( (lt * (maxX-dx)) + (rt * dx) ) / maxX );
+						renderTex(startX+dx, startY+dy, img, texPt);
+					}
+				}
+				for( int dy = middleDY; dy<maxDY; ++dy) {
+					const Vector4 l ( (a * (maxDY-dy) + c * dy) / maxDY );
+					const Vector4 r ( (b * ((maxDY-middleDY) - (dy-middleDY)) + c * (dy-middleDY)) / (maxDY-middleDY) );
+
+					const Vector4 lt ( (u * (maxDY-dy) + w * dy) / maxDY );
+					const Vector4 rt ( (v * ((maxDY-middleDY) - (dy-middleDY)) + w * (dy-middleDY)) / (maxDY-middleDY) );
+					const int startX = round(l.x());
+					for( int dx=0, maxX=round(r.x() - l.x()); dx<maxX; ++dx ) {
+						const Vector4 texPt ( ( (lt * (maxX-dx)) + (rt * dx) ) / maxX );
+						renderTex(startX+dx, startY+dy, img, texPt);
+					}
+				}
+			}else{
+				for( int dy = 0; dy<middleDY; ++dy) {
+					const Vector4 r ( (a * (maxDY-dy) + c * dy) / maxDY );
+					const Vector4 l ( (a * (middleDY-dy) + b * dy) / middleDY );
+					const Vector4 rt ( (u * (maxDY-dy) + w * dy) / maxDY );
+					const Vector4 lt ( (u * (middleDY-dy) + v * dy) / middleDY );
+					const int startX = round(l.x());
+					for( int dx=0, maxX=round(r.x() - l.x()); dx<maxX; ++dx ) {
+						const Vector4 texPt ( ( (lt * (maxX-dx)) + (rt * dx) ) / maxX );
+						renderTex(startX+dx, startY+dy, img, texPt);
+					}
+				}
+				for( int dy = middleDY; dy<maxDY; ++dy) {
+					const Vector4 r ( (a * (maxDY-dy) + c * dy) / maxDY );
+					const Vector4 l ( (b * ((maxDY-middleDY) - (dy-middleDY)) + c * (dy-middleDY)) / (maxDY-middleDY) );
+
+					const Vector4 rt ( (u * (maxDY-dy) + w * dy) / maxDY );
+					const Vector4 lt ( (v * ((maxDY-middleDY) - (dy-middleDY)) + w * (dy-middleDY)) / (maxDY-middleDY) );
+					const int startX = round(l.x());
+					for( int dx=0, maxX=round(r.x() - l.x()); dx<maxX; ++dx ) {
+						const Vector4 texPt ( ( (lt * (maxX-dx)) + (rt * dx) ) / maxX );
+						renderTex(startX+dx, startY+dy, img, texPt);
+					}
+				}
+			}
+		}
+	}
 	void move(float const tx, float const ty, float const tz = 0.0f){
 		this->model_ = std::move(Matrix4(
 			1,      0,       0,  tx,
@@ -418,22 +530,56 @@ public:
 	}
 };
 
+#include <libgen.h>
+
 int main(int argc, char** argv)
 {
 	{
+
+		char dname[ strlen(argv[0]) + 10 ];
+		memcpy(dname, argv[0], strlen(argv[0])+1);
+		dirname(dname);
+		strcat(dname, "/tex.png");
+		puts(dname);
+		cairo_surface_t* img = cairo_image_surface_create_from_png(dname);
+
+		if( cairo_surface_get_type(img) != CAIRO_SURFACE_TYPE_IMAGE ) {
+			std::printf("Unknwon texture image type: %d", cairo_surface_get_type(img));
+			return -1;
+		}
+
 		using namespace dolly;
 		CameraBuilder b(640,480,"test.mp4");
-		std::unique_ptr<Camera> cam(b.showWindow(false).build());
+		std::unique_ptr<Camera> cam(b.build());
 		SuperPX px(cam->cairo(), cam->surface());
 		px.clear();
 		px.frustum(-1,1,1,-1,2,10);
 		for( int i=0;i<30*30;++i ) {
+			std::printf("frame: %d\n", i+1);
 			px.clear();
 			Color c(1,1,1,1);
 			px.move(0, 0, -2);
 			px.rotate(0.5f , 1 , 0.25f, 1.0f/180*3.14f);
 			px.move(0, 0, +2);
 			px.move(0, 0, +4);
+			px.triangle(
+					Vector4(-1, -1, 2, 1),
+					Vector4(-1,  1, 2, 1),
+					Vector4( 1,  1, 2, 1),
+					img,
+					Vector4(   0,  0, 0, 1),
+					Vector4(   0, 512, 0, 1),
+					Vector4( 512, 512, 0, 1)
+			);
+			px.triangle(
+					Vector4( 1,  1, 2, 1),
+					Vector4( 1, -1, 2, 1),
+					Vector4(-1, -1, 2, 1),
+					img,
+					Vector4( 512, 512, 0, 1),
+					Vector4( 512,   0, 0, 1),
+					Vector4(   0,   0, 0, 1)
+			);
 			px.line(Vector4(-1, -1, 2, 1), Vector4( 1, -1, 2, 1), c);
 			px.line(Vector4( 1, -1, 2, 1), Vector4( 1,  1, 2, 1), c);
 			px.line(Vector4( 1,  1, 2, 1), Vector4(-1,  1, 2, 1), c);
