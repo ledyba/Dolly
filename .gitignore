@@ -66,3 +66,4 @@ src/sample/mandelbrot
 src/stamp-h1
 
 *.mp4
+/Windows/
