@@ -105,6 +105,7 @@ public:
 	inline float const& operator[](int i) const{ return v_[i]; }
 	inline float& operator()(int i){ return v_[i]; }
 	inline float& operator[](int i){ return v_[i]; }
+	float length() const;
 public:
 	float dot(Vector4 const& v);
 	Vector4 cross(Vector4 const& v){

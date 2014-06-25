@@ -6,6 +6,7 @@
  */
 
 #include <dolly/Dolly.h>
+#include <cmath>
 #include "super_px.h"
 
 /***********************************************************************
@@ -179,6 +180,11 @@ Vector4& Vector4::operator=(Vector4 const& o){
 	v_[3] = o.v_[3];
 	return *this;
 }
+float Vector4::length() const
+{
+	return std::sqrt(x()*x() + y()*y() + z()*z() + w()*w());
+}
+
 Vector4 Vector4::operator*(float const f) const{
 	Vector4 v(*this);
 	for(int i=0;i<4;++i){
@@ -201,7 +207,7 @@ Vector4 Vector4::operator/(float const f) const{
 }
 Vector4& Vector4::operator/=(float const f) {
 	for(int i=0;i<4;++i){
-		(*this)(i) *= f;
+		(*this)(i) /= f;
 	}
 	return *this;
 }
