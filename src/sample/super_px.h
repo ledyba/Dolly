@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cassert>
+#include <vector>
 class Color final{
 	float r_;
 	float g_;
@@ -126,6 +127,7 @@ private:
 private:
 	Matrix4 proj_;
 	Matrix4 model_;
+	std::vector<Matrix4> savedMatrix_;
 public:
 	SuperPX(cairo_t* const& cr, cairo_surface_t* surf);
 	~SuperPX() = default;
@@ -137,6 +139,8 @@ public:
 	Color const& clearColor(Color const& c);
 	Color const& clearColor() const;
 public:
+	void pushMatrix();
+	void popMatrix();
 	void color(Color const& c);
 	void clear();
 	void dot(const int x, const int y, Color const& c);

@@ -283,6 +283,16 @@ Color const& SuperPX::clearColor(Color const& c) {
 Color const& SuperPX::clearColor() const {
 	return this->clearColor_;
 }
+void SuperPX::pushMatrix()
+{
+	this->savedMatrix_.push_back( this->model_ );
+}
+void SuperPX::popMatrix()
+{
+	this->model_ = this->savedMatrix_.back();
+	this->savedMatrix_.pop_back();
+}
+
 void SuperPX::color(Color const& c){
 	cairo_set_source_rgba(cr_, c.r(), c.g(), c.b(), c.a());
 }
