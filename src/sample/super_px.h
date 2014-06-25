@@ -155,4 +155,20 @@ public:
 	void scale(float const sx, float const sy, float const sz = 1.0f);
 	void frustum(float l,float r,float b,float t,float n,float f);
 	void rotate(float x, float y, float z, float angle);
+public:
+	class SaveMatrix final{
+	private:
+		SuperPX& px_;
+		SaveMatrix(SaveMatrix const&) = delete;
+		SaveMatrix(SaveMatrix&&) = delete;
+		SaveMatrix& operator=(SaveMatrix const&) = delete;
+		SaveMatrix& operator=(SaveMatrix&&) = delete;
+	public:
+		SaveMatrix(SuperPX& px):px_(px) {
+			px_.pushMatrix();
+		}
+		~SaveMatrix() noexcept {
+			px_.popMatrix();
+		}
+	};
 };
