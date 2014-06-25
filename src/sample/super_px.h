@@ -96,8 +96,8 @@ public:
 	Vector4 operator/(float const f) const;
 	Vector4& operator/=(float const f);
 	Vector4 operator-() const;
-	Vector4 operator+(Vector4 const& o);
-	Vector4 operator-(Vector4 const& o);
+	Vector4 operator+(Vector4 const& o) const;
+	Vector4 operator-(Vector4 const& o) const;
 	Vector4& operator+=(Vector4 const& o);
 	Vector4& operator-=(Vector4 const& o);
 	~Vector4() = default;
@@ -109,12 +109,12 @@ public:
 public:
 	float dot(Vector4 const& v);
 	Vector4 cross(Vector4 const& v){
-		//FIXME
-		Vector4 s;
-		for(int i=0;i<4;++i){
-			s(i) = 0;
-		}
-		return std::move(s);
+		return std::move(Vector4(
+				(*this)(1)*v(2) - (*this)(2)*v(1),
+				(*this)(2)*v(0) - (*this)(0)*v(2),
+				(*this)(0)*v(1) - (*this)(1)*v(0),
+				0
+			));
 	}
 };
 Vector4 operator*(Matrix4 const& mat, Vector4 const& vec);

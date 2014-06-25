@@ -218,14 +218,16 @@ Vector4 Vector4::operator-() const{
 	}
 	return std::move(vec);
 }
-Vector4 Vector4::operator+(Vector4 const& o){
+Vector4 Vector4::operator+(Vector4 const& o) const
+{
 	Vector4 vec;
 	for(int i=0;i<4;++i){
 		vec(i) = (*this)(i) + o(i);
 	}
 	return std::move(vec);
 }
-Vector4 Vector4::operator-(Vector4 const& o){
+Vector4 Vector4::operator-(Vector4 const& o) const
+{
 	Vector4 vec;
 	for(int i=0;i<4;++i){
 		vec(i) = (*this)(i) - o(i);
