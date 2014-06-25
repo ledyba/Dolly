@@ -164,11 +164,7 @@ public:
 		SaveMatrix& operator=(SaveMatrix const&) = delete;
 		SaveMatrix& operator=(SaveMatrix&&) = delete;
 	public:
-		SaveMatrix(SuperPX& px):px_(px) {
-			px_.pushMatrix();
-		}
-		~SaveMatrix() noexcept {
-			px_.popMatrix();
-		}
+		SaveMatrix(SuperPX& px);
+		~SaveMatrix() noexcept;
 	};
 };

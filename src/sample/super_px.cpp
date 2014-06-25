@@ -471,3 +471,11 @@ void SuperPX::rotate(float x, float y, float z, float angle)
 		0, 0, 0, 1) * this->model_  );
 }
 
+
+SuperPX::SaveMatrix::SaveMatrix(SuperPX& px):px_(px) {
+	px_.pushMatrix();
+}
+SuperPX::SaveMatrix::~SaveMatrix() noexcept {
+	px_.popMatrix();
+}
+
