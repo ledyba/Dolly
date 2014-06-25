@@ -14,7 +14,7 @@
 #include <limits>
 
 /**
- * BƒXƒvƒ‰ƒCƒ“
+ * Bã‚¹ãƒ—ãƒ©ã‚¤ãƒ³
  */
 
 template <int N>
@@ -86,7 +86,7 @@ void drawBSprine(SuperPX& px, std::unique_ptr<dolly::Camera> const& cam)
 }
 
 /**
- * ƒxƒWƒG‹Èü
+ * ãƒ™ã‚¸ã‚¨æ›²ç·š
  */
 
 class Bazier {
@@ -116,7 +116,7 @@ public:
 };
 
 /**
- * ƒN[ƒ“ƒY‹Èü
+ * ã‚¯ãƒ¼ãƒ³ã‚ºæ›²é¢
  */
 
 Vector4 hermite(double const t) {
