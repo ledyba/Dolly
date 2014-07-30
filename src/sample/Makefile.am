@@ -1,11 +1,14 @@
 include $(top_srcdir)/Makefile.am.common
-noinst_PROGRAMS = word_rotation sim mandelbrot runge_kutta 3d_texture parametric_curves
+noinst_PROGRAMS = word_rotation sim kepler mandelbrot runge_kutta 3d_texture parametric_curves
 
 word_rotation_SOURCES = word_rotation.cpp
 word_rotation_LDADD = $(LIBDOLLY)
 
 sim_SOURCES = sim.cpp
 sim_LDADD = $(LIBDOLLY)
+
+kepler_SOURCES = kepler.cpp super_px.cpp
+kepler_LDADD = $(LIBDOLLY)
 
 mandelbrot_SOURCES = mandelbrot.cpp
 mandelbrot_LDADD = $(LIBDOLLY)

@@ -6,7 +6,7 @@
  */
 #include "../config.h"
 
-#if HAVE_WINDOWS_H
+#ifdef HAVE_WINDOWS_H
 #include "Window.h"
 #include <Windows.h>
 #include <cstdio>

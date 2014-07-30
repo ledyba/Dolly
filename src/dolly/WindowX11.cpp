@@ -5,7 +5,7 @@
  * Copyright 2014, psi
  */
 #include "../config.h"
-#if HAVE_X11
+#ifdef HAVE_X11
 
 #include "Window.h"
 #include <X11/Xlib.h>
