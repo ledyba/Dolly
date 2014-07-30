@@ -20,7 +20,7 @@ private:
 public:
 	template<typename ...E>
 	constexpr Matrix(FT const& e, E&&...init)
-	:vs_{{e, std::forward<E>(init)...}}
+	:vs_{{e, static_cast<FT>(std::forward<E>(init))...}}
 	{
 	}
 	Matrix() {
@@ -152,7 +152,8 @@ public:
 		std::fill(std::begin(v_), std::end(v_), 0);
 	}
 	template<typename ...E>
-	constexpr Vector(FT const& e, E&&...init):v_{{e, std::forward<E>(init)...}} {
+	constexpr Vector(FT const& e, E&&...init)
+	:v_{{e, static_cast<FT>(std::forward<E>(init))...}} {
 	}
 	Vector(FT const (&v)[N]) {
 		std::copy(std::begin(v), std::end(v), std::begin(v_));

@@ -9,9 +9,9 @@
 #include <iostream>
 #include <cstdio>
 #include <cassert>
-#include "super_px.h"
 #include <libgen.h>
 #include <limits>
+#include "super_px.h"
 
 /**
  * Bスプライン
@@ -242,7 +242,10 @@ void drawCoons(SuperPX& px, std::unique_ptr<dolly::Camera> const& cam)
 	for(int i=0;i<4;++i)
 		for(int j=0;j<4;++j) {
 			if(!( (i ==0 || i == 3) && (j ==0 || j == 3) ) ) {
-				Vector4 r((rand() % 1000)-500,(rand() % 1000)-500,(rand() % 1000)-500, 0);
+				const float x = (rand() % 1000)-500.0f;
+				const float y = (rand() % 1000)-500.0f;
+				const float z = (rand() % 1000)-500.0f;
+				Vector4 r(x, y, z, 0.0f);
 				r /= r.length();
 				params[i][j] = r;
 			}
