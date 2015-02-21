@@ -60,7 +60,18 @@ AC_CHECK_HEADER([Windows.h],
 				 [AM_CONDITIONAL(HAVE_WINDOWS, false)]
 				)
 PKG_CHECK_MODULES_STATIC([X11], [x11], [AC_DEFINE([HAVE_X11], [1], [Use X11])], [echo -n])
-PKG_CHECK_MODULES_STATIC([FFMPEG], [libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale])
+PKG_CHECK_MODULES_STATIC(
+	[FFMPEG],
+	[libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale],
+	[AC_DEFINE([HAVE_FFMPEG], [1], [Use FFmpeg]) HAVE_FFMPEG='yes'],
+	[echo -n]
+)
+
+AM_CONDITIONAL(HAVE_FFMPEG, test x$HAVE_FFMPEG == x"yes")
+AM_COND_IF(
+	[HAVE_FFMPEG], [], [
+		PKG_CHECK_MODULES_STATIC([LIBAV], [libavcodec libavdevice libavfilter libavformat libavutil libswscale], 
+		[AC_DEFINE([HAVE_LIBAV], [1], [Use libav])], [echo -n])])
 
 AM_COND_IF([HAVE_WINDOWS], [
 		PKG_CHECK_MODULES_STATIC([CAIRO], [cairo cairo-win32])
