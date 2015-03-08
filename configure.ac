@@ -70,14 +70,14 @@ PKG_CHECK_MODULES_STATIC(
 AM_CONDITIONAL(HAVE_FFMPEG, test x$HAVE_FFMPEG == x"yes")
 AM_COND_IF(
 	[HAVE_FFMPEG], [], [
-		PKG_CHECK_MODULES_STATIC([LIBAV], [libavcodec libavdevice libavfilter libavformat libavutil libswscale], 
+		PKG_CHECK_MODULES_STATIC([LIBAV], [libavcodec libavdevice libavfilter libavformat libavutil libswscale libavresample], 
 		[AC_DEFINE([HAVE_LIBAV], [1], [Use libav])], [echo -n])])
 
 AM_COND_IF([HAVE_WINDOWS], [
-		PKG_CHECK_MODULES_STATIC([CAIRO], [cairo cairo-win32])
+		PKG_CHECK_MODULES_STATIC([CAIRO], [cairo cairo-win32 libffi])
 		EXT_PKGS=cairo-win32
 	], [
-		PKG_CHECK_MODULES_STATIC([CAIRO], [cairo])
+		PKG_CHECK_MODULES_STATIC([CAIRO], [cairo libffi])
 	])
 
 AC_SUBST(EXT_PKGS)

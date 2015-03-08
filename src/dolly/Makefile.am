@@ -12,8 +12,8 @@ libdolly_a_SOURCES=\
 	Film.cpp\
 	Film.h
 
-libdolly_a_CPPFLAGS = $(CAIRO_CFLAGS) $(X11_CFLAGS) $(FFMPEG_CFLAGS)
-#libdolly_a_LIBADD = $(CAIRO_LIBS) $(X11_LIBS) $(FFMPEG_LIBS)
+libdolly_a_CPPFLAGS = $(CAIRO_CFLAGS) $(X11_CFLAGS) $(FFMPEG_CFLAGS) $(LIBAV_CFLAGS)
+#libdolly_a_LIBADD = $(CAIRO_LIBS) $(X11_LIBS) $(FFMPEG_LIBS) $(LIBAV_LIBS)
 
 #libdolly_la_LDFLAGS = -no-undefined \
 #        -avoid-version \

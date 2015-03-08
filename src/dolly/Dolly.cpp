@@ -9,6 +9,7 @@
 #include <dolly/Util.h>
 #include "Window.h"
 #include "Film.h"
+#include "../config.h"
 extern "C" {
 #include <libswscale/swscale.h>
 }
@@ -48,7 +49,16 @@ std::unique_ptr<Camera> CameraBuilder::build()
 		{
 			int error;
 			AVFormatContext* fmtCtx;
+#ifdef HAVE_FFMPEG
 			avformat_alloc_output_context2(&fmtCtx, nullptr, nullptr, filename_.c_str());
+#endif
+#ifdef HAVE_LIBAV
+			fmtCtx = avformat_alloc_context();
+			fmtCtx->oformat = av_guess_format(nullptr, filename_.c_str(), nullptr);
+			if (!fmtCtx->oformat){
+				throw std::logic_error("Could not guess format\n");
+			}
+#endif
 			fmt.set(fmtCtx);
 			if (!fmt) {
 				throw std::logic_error("Could not allocate output format context\n");

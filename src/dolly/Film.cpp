@@ -6,7 +6,13 @@
  */
 #include <Film.h>
 #include <cairo/cairo.h>
-
+#include "../config.h"
+#ifdef HAVE_LIBAV
+extern "C" {
+#include <libavutil/mathematics.h>
+}
+#define AV_ROUND_PASS_MINMAX 0
+#endif
 namespace dolly {
 
 Film::Film(
