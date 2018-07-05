@@ -16,11 +16,15 @@ int main(int argc, char** argv)
 {
 	{
 
-		char dname[ strlen(argv[0]) + 10 ];
-		memcpy(dname, argv[0], strlen(argv[0])+1);
-		dirname(dname);
+		char dname_[ strlen(argv[0]) + 10 ];
+		char* dname = 0;
+		memcpy(dname_, argv[0], strlen(argv[0])+1);
+		dname = dirname(dname_);
+		memcpy(dname_, dname, strlen(dname)+1);
 		strcat(dname, "/tex.png");
 		puts(dname);
+		fflush(stdout);
+
 		cairo_surface_t* img = cairo_image_surface_create_from_png(dname);
 
 		if( cairo_surface_get_type(img) != CAIRO_SURFACE_TYPE_IMAGE ) {
