@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 		}
 
 		using namespace dolly;
-		CameraBuilder b(640,480,"test.mp4");
+		CameraBuilder b(640,480,"3d_texture.mp4");
 		std::unique_ptr<Camera> cam(b.build());
 		SuperPX px(cam->cairo(), cam->surface());
 		px.clear();

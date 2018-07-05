@@ -5,6 +5,7 @@
  * Copyright 2014, PSI
  */
 #pragma once
+#include <string>
 #include "FFPtr.h"
 #include <cairo/cairo.h>
 

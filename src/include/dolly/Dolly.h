@@ -15,6 +15,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <limits.h>
 #ifdef _STDINT_H
 #undef _STDINT_H

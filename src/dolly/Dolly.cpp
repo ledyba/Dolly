@@ -112,7 +112,7 @@ std::unique_ptr<Camera> CameraBuilder::build()
 			 * Mark the encoder so that it behaves accordingly.
 			 */
 			if (fmt->oformat->flags & AVFMT_GLOBALHEADER) {
-				codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+				codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 			}
 
 			/** Open the encoder for the audio stream to use it later. */
@@ -138,7 +138,7 @@ std::unique_ptr<Camera> CameraBuilder::build()
 		}
 		FFSwsContext sws;
 		{
-			sws.set(sws_getContext(width_,height_, PIX_FMT_BGRA, width_, height_, codec->pix_fmt, 0, nullptr, nullptr, nullptr));
+			sws.set(sws_getContext(width_,height_, AV_PIX_FMT_BGRA, width_, height_, codec->pix_fmt, 0, nullptr, nullptr, nullptr));
 		}
 		film = std::unique_ptr<Film>(new Film(
 				filename_,

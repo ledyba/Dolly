@@ -9,6 +9,7 @@ libdolly_a_SOURCES=\
 	Window.h\
 	WindowX11.cpp\
 	WindowWin32.cpp\
+	WindowNop.cpp\
 	Film.cpp\
 	Film.h
 

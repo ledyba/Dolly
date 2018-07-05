@@ -9,6 +9,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cassert>
+#include <array>
 
 namespace dolly {
 

@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 	std::flush(std::cout);
 	{
 		using namespace dolly;
-		CameraBuilder b(640,480,"sim_test.mp4");
+		CameraBuilder b(640,480,"mandelblot.mp4");
 		std::unique_ptr<Camera> cam ( b.bitrate(1000*1000*10).build() );
 		for( int i=0;i<900;++i ) {
 			std::printf("Rendering frame: %d\n", i);

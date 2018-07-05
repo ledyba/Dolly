@@ -46,23 +46,7 @@ void Film::shot(cairo_surface_t* surf)
 		int stride[4] = { cairo_image_surface_get_stride(surf), 0, 0, 0 };
 		sws_scale(sws_.get(), src, stride, 0, vframe_->height, vframe_->data, vframe_->linesize);
 	}
-	if (fmt_->oformat->flags & AVFMT_RAWPICTURE) {
-		/* raw video case. The API will change slightly in the near
-		   futur for that */
-		AVPacket pkt;
-		av_init_packet(&pkt);
-
-		pkt.flags |= AV_PKT_FLAG_KEY;
-		pkt.stream_index= vstr_->index;
-		pkt.data= (uint8_t *) vframe_.get();
-		pkt.size= sizeof(AVPicture);
-
-		if ( av_write_frame(fmt_.get(), &pkt) < 0 ){
-			av_free_packet(&pkt);
-			throw std::logic_error("Failed to write frame");
-		}
-		av_free_packet(&pkt);
-	} else {
+	{ // encode
 		AVPacket pkt;
 		av_init_packet(&pkt);
 		pkt.data = NULL;    // packet data will be allocated by the encoder

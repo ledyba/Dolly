@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 {
 	{
 		using namespace dolly;
-		CameraBuilder b(640,480,"test.mp4");
+		CameraBuilder b(640,480,"word_rotation.mp4");
 		std::unique_ptr<Camera> cam(b.build());
 		cairo_set_source_rgba(cam->cairo(), 1, 1, 1, 1);
 		cairo_paint(cam->cairo());
